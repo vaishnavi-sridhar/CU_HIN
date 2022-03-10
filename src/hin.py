@@ -2,7 +2,7 @@ import argparse
 from args import get_default_ArgumentParser, process_common_arguments
 from dataprun import GenerateWL, GenerateDomain2IP
 import logging
-#from DomainNameSimilarity import getDomainSimilarityCSR
+from DomainNameSimilarity import getDomainSimilarityCSR
 from ip_to_ip import ip_to_ip
 from time import time
 from label import Label, LabelFiles
@@ -66,7 +66,7 @@ def main():
 
   RL, domain2index, ip2index =  GenerateWL(FLAGS.dns_files)
   print(RL)
-  domain2ip = GenerateDomain2IP(RL, domain2index)
+  domain2ip = GenerateDomain2IP(RL, domain2index) #maps domain to resolved ip list
 
   numDomains = len(domain2ip) 
   domainMatrixSize = max(domain2index.values()) + 1
@@ -175,7 +175,7 @@ def main():
   #               "{:.2f}".format(time() - time1))
   if cnameCSR is not None:
     time1 = time()
-    M = M + PathSim(cnamneCSR)
+    M = M + PathSim(cnameCSR)
     logging.info("Time pathsim cnameCSR " + 
                  "{:.2f}".format(time() - time1))
   if domainQueriedBySameClient is not None:

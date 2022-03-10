@@ -127,7 +127,7 @@ def domainSimilarityAlgorithm(domain1, domain2):
 
         text_similar = similarByName(domain1, domain2)
         net_similar = similarByNetwork(d1_ip, d2_ip)
-        # total_similar = round(mean([text_similar, net_similar]), 3)
+        total_similar = round(mean([text_similar, net_similar]), 3)
         if total_similar <= 0.2:
             return 0.0
         else:

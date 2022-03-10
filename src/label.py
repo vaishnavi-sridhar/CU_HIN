@@ -29,7 +29,7 @@ class LabelFiles:
 
     with open(self.good, "r") as g:
       for line in g:
-        gdomains.append(line.rstrip())
+        gdomains.append(line.rstrip()) #removes all characters terminating the string like ,
 
     with open(self.bad, "r") as b:
       for line in b:
@@ -38,8 +38,8 @@ class LabelFiles:
     print(gdomains)
     print(bdomains)
 
-    labeled = np.zeros((len(domains), 2))
-    for domain, index in domains.items():
+    labeled = np.zeros((len(domains), 2))  # create a zero matrix of domain count as row size and 2 as column size
+    for domain, index in domains.items(): #iterate through each domain item and modify the
       if domain in gdomains:
         labeled[index, 0] = 0
         labeled[index, 1] = 1

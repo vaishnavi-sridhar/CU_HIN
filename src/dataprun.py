@@ -24,7 +24,7 @@ def ValidDomain(Domain):
     DomainFirst = re.search("[a-zA-Z0-9]",Domain[0]) #Only a-zA-Z0-9
     DomainLast = Domain[-1] != "-" and Domain[-1] != "." #Not - or .
 
-    return DomainSize and DomainChar and DomainFirst and DomainLast
+    return DomainSize and DomainChar and DomainFirst and DomainLast  #Returns true only when all conditions are satisfied
 
 
 def ValidIP(IP):
@@ -116,10 +116,10 @@ def ReadInLogs(LogList):
                     TotalLine += 1
                     dline = line.strip().split("\t") #require given format, otherwise throw exception
                     #print(dline)
-                    IDKey = dline[2]+dline[3]+dline[4]+dline[5]+dline[7]
-                    Client = dline[2]
-                    Domain = dline[9]
-                    IPList = Answer2IP(dline[21])
+                    IDKey = dline[2]+dline[3]+dline[4]+dline[5]+dline[7] #Concatenated value of id.orig_h,id.orig_p,id.resp_h,id.resp_p,trans_id
+                    Client = dline[2] # ip address of the client
+                    Domain = dline[9] # the domain name that is being queried
+                    IPList = Answer2IP(dline[21]) #Check validity of ip addresses in answers (DNS response)
 
                     updateFlag = False #determine if can updates
                     
@@ -133,7 +133,7 @@ def ReadInLogs(LogList):
                             ReadinLogDict[IDKey][1] = Domain
                             IPList = ReadinLogDict[IDKey][2]
                             updateFlag = True
-                            ValidLine += 2 #need two logs
+                            ValidLine += 2 #need two logs  --??
                             #print("C1-")
                             
 
@@ -167,7 +167,7 @@ def ReadInLogs(LogList):
                             #print(ReadinLogDict[IDKey])
 
                         if(Domain not in RL):
-                            RL[Domain] = {Client: IPList}
+                            RL[Domain] = {Client: IPList} #forming dictionary of dictionary
 
                         elif(Client not in RL.get(Domain)):
                             RL[Domain][Client] = IPList
@@ -262,7 +262,7 @@ def Prun(DomainDict,ClientDict,IPDict,TotalCall,kd=1,ka=1,kc=1,kip=1):
     for client in ClientDict:
 
         cNum = ClientDict.get(client)
-        if(cNum < MaxClient and cNum >= kc):
+        if(cNum < MaxClient and cNum >= kc): #neither busy nor inactive is taken into account
             IPNo[client] = index
             index += 1
     
@@ -273,7 +273,7 @@ def Prun(DomainDict,ClientDict,IPDict,TotalCall,kd=1,ka=1,kc=1,kip=1):
     IPSizeAfter = 0
     for ip in IPDict:
 
-        if(len(set(IPDict.get(ip))) > kip):
+        if(len(set(IPDict.get(ip))) > kip): #This is confusing --?? Why would we mix client ip address & resolved ip address
             #print(ip,": ",IPDict.get(ip))
             IPNo[ip] = index
             index += 1
@@ -358,7 +358,7 @@ def GenerateDomain2IP(RL,DD):
 
     #Form IP2D again
     for dd in Domains:
-        temp = set(sum(RL[dd].values(),[]))
+        temp = set(sum(RL[dd].values(),[]))#--?? How is it that RL[dd].values pulls out the list of IP addresses alone ,since RL is a dict(domain,<>) of dict(client,ip list)
         for ip in temp:
             if(ip not in IP2Domain):
                 IP2Domain[ip] = []
