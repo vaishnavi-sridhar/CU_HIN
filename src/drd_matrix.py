@@ -151,7 +151,7 @@ def drdMatrix(filename):
     
     # Calling dataprun package for whitelisted domain names and corresponding indexes
     print("Calling Dataprun package for whitelisted domain names......\n")
-    RL,DD,IPD = dataprun.GenerateWL(filename)
+    RL,DD,IPD,CNameRecords = dataprun.GenerateWL(filename)
     
     # Filtering the whitelisted domain_names provided by dataprun package
     # with known TLDs supported by the whois package.

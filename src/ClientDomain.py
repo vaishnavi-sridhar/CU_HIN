@@ -112,7 +112,7 @@ def main():
     filenames = []
     filenames.append(flags.inputtxtfile)
 
-    readlog, domain2index, ip2index = GenerateWL(filenames)
+    readlog, domain2index, ip2index, CNameRecords = GenerateWL(filenames)
 
     # Passive DNS for domains
     for i in domain2index:

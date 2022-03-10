@@ -85,5 +85,5 @@ if __name__ == '__main__':
 
     FLAGS = parser.parse_args()
 
-    RL, domain2index, ip2index =  GenerateWL(FLAGS.dns_files)
+    RL, domain2index, ip2index,CNameRecords =  GenerateWL(FLAGS.dns_files)
     ip_to_ip(ip2index, FLAGS.netflow_files)

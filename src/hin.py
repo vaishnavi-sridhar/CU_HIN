@@ -11,6 +11,8 @@ from ClientDomain import getClientQueriesDomainCSR
 from PathSim import PathSim
 from scipy.sparse import csr_matrix
 from affinity_matrix import affinity_matrix, converge
+import numpy as np
+import pandas as pd
 
 def print_nnz_info(M: csr_matrix, name: str):
   """ Prints nnz info
@@ -64,8 +66,8 @@ def main():
   logging.info("DNS files: " + str(FLAGS.dns_files))
   logging.info("Netflow files: " + str(FLAGS.netflow_files))
 
-  RL, domain2index, ip2index =  GenerateWL(FLAGS.dns_files)
-  print(RL)
+  RL, domain2index, ip2index, CNameRecords =  GenerateWL(FLAGS.dns_files)
+  #print(RL) #Commenting out for faster runtime
   domain2ip = GenerateDomain2IP(RL, domain2index) #maps domain to resolved ip list
 
   numDomains = len(domain2ip) 
@@ -133,6 +135,12 @@ def main():
 
   ################### CNAME ########################################
   cnameCSR = None # Not complete
+  print(domain2index.keys())
+  cnameMatrix = pd.DataFrame(0, index=list(domain2index.values()), columns=list(domain2index.keys()))
+
+  for row in cnameMatrix.iteritems:
+    ##
+     return
 
 
   ################### Creating metapaths ############################

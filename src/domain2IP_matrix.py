@@ -56,7 +56,7 @@ def main():
                       help='Expects log file from /data/dns directory')
   FLAGS = parser.parse_args()
 
-  RL, domain2index, ip2index =  dataprun.GenerateWL(FLAGS.dns_files)
+  RL, domain2index, ip2index, CNameRecords =  dataprun.GenerateWL(FLAGS.dns_files)
   domain2ip = dataprun.GenerateDomain2IP(RL, domain2index)
 
   # Create sparse matrix of domain to IP relations

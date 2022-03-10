@@ -119,7 +119,13 @@ def ReadInLogs(LogList):
                     IDKey = dline[2]+dline[3]+dline[4]+dline[5]+dline[7] #Concatenated value of id.orig_h,id.orig_p,id.resp_h,id.resp_p,trans_id
                     Client = dline[2] # ip address of the client
                     Domain = dline[9] # the domain name that is being queried
+                    qTypeName = dline[13] #ADDED for CNAME matrix computation
                     IPList = Answer2IP(dline[21]) #Check validity of ip addresses in answers (DNS response)
+
+                    #Code snippet for CName records
+                    cnameRecordDict = {}
+                    if qTypeName == "CNAME":
+                        cnameRecordDict[Domain]=IPList
 
                     updateFlag = False #determine if can updates
                     
@@ -144,7 +150,6 @@ def ReadInLogs(LogList):
                             updateFlag = True
                             ValidLine += 2 #need two logs
                             #print("C2-")
-                            
 
                     else:
                         if((Domain == "-" or ValidDomain(Domain)) and (ValidIP(Client) or dline[21] == "-")): 
@@ -207,7 +212,7 @@ def ReadInLogs(LogList):
     print("Read in {} log; {} ({:.3f}%) logs are useful (contain valid domain/client/ips)".format(TotalLine,ValidLine,precent))
     print("Valid Domains: {}\nValid Clients: {}\nValid IPs: {}".format(len(DomainDict),len(ClientDict),len(IPDict)))
     #only retuen cleaned clients,domains.ips
-    return (RL,DomainDict,ClientDict,IPDict,TotalLine)
+    return (RL,DomainDict,ClientDict,IPDict,TotalLine,cnameRecordDict)
 
 
 def Prun(DomainDict,ClientDict,IPDict,TotalCall,kd=1,ka=1,kc=1,kip=1):
@@ -315,7 +320,7 @@ def GenerateWL(LogLists,kd=1,ka=1,kc=1,kip=1,ShowTime=True):
 
     
     st = datetime.now()
-    RL,DD,CD,IPD,TCalls = ReadInLogs(LogLists)
+    RL,DD,CD,IPD,TCalls,CNameRecords = ReadInLogs(LogLists)
     et = datetime.now()
     tt = et - st
     print()
@@ -326,15 +331,23 @@ def GenerateWL(LogLists,kd=1,ka=1,kc=1,kip=1,ShowTime=True):
         print("Data {} Cleaned. Start pruning ... ".format(TCalls))
         st = datetime.now()
         DD,IPD = Prun(DD,CD,IPD,TCalls,kd,ka,kc,kip)
+
+        # CName record filtering
+        for key in CNameRecords.keys():
+            if key not in DD.keys():
+                CNameRecords.pop(key)
+
+        print("CName records count:", len(CNameRecords.keys()))
+
         et = datetime.now()
         tt = et - st
-        if(ShowTime):
+        if (ShowTime):
             print()
             print("Purn cost:{}".format(tt))
-        return (RL,DD,IPD)
-
+        return (RL, DD, IPD,CNameRecords)
     else:
         return None
+
     
 def GenerateDomain2IP(RL,DD):
     
