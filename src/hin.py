@@ -2,7 +2,7 @@ import argparse
 from args import get_default_ArgumentParser, process_common_arguments
 from dataprun import GenerateWL, GenerateDomain2IP
 import logging
-from DomainNameSimilarity import getDomainSimilarityCSR
+#from DomainNameSimilarity import getDomainSimilarityCSR
 from ip_to_ip import ip_to_ip
 from time import time
 from label import Label, LabelFiles
