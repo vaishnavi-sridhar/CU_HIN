@@ -336,6 +336,7 @@ def GenerateWL(LogLists,kd=1,ka=1,kc=1,kip=1,ShowTime=True):
         st = datetime.now()
         DD,IPD = Prun(DD,CD,IPD,TCalls,kd,ka,kc,kip)
 
+        print("CName records count before filtering:", len(CNameRecords.keys()))
         # CName record filtering
         for key in CNameRecords.keys():
             if key not in DD.keys():
