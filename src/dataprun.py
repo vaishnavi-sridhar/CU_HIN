@@ -121,7 +121,7 @@ def ReadInLogs(LogList):
                     Domain = dline[9] # the domain name that is being queried
                     qTypeName = dline[13] #ADDED for CNAME matrix computation
                     IPList = Answer2IP(dline[21]) #Check validity of ip addresses in answers (DNS response)
-                    aliasDomainList = dline[21].split(",")
+                    aliasDomainList = [] if dline[21] == "-" else dline[21].split(",")
 
                     #Code snippet for CName records
                     cnameRecordDict = {}
