@@ -121,11 +121,12 @@ def ReadInLogs(LogList):
                     Domain = dline[9] # the domain name that is being queried
                     qTypeName = dline[13] #ADDED for CNAME matrix computation
                     IPList = Answer2IP(dline[21]) #Check validity of ip addresses in answers (DNS response)
+                    aliasDomainList = dline[21].split(",")
 
                     #Code snippet for CName records
                     cnameRecordDict = {}
-                    if qTypeName.startswith("CNAME") and len(IPList)>0:
-                        cnameRecordDict[Domain]=IPList
+                    if qTypeName.startswith("CNAME") and len(aliasDomainList)>0:
+                        cnameRecordDict[Domain]=aliasDomainList
                         #print("Cname qtypes:",qTypeName)
                         print(cnameRecordDict)
 
