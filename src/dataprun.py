@@ -128,7 +128,7 @@ def ReadInLogs(LogList):
                     if qTypeName.startswith("CNAME") and len(aliasDomainList)>0:
                         cnameRecordDict[Domain]=aliasDomainList
                         #print("Cname qtypes:",qTypeName)
-                        print(cnameRecordDict)
+                        #print(cnameRecordDict)
 
                     updateFlag = False #determine if can updates
                     
