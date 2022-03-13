@@ -124,7 +124,7 @@ def ReadInLogs(LogList):
 
                     #Code snippet for CName records
                     cnameRecordDict = {}
-                    if qTypeName.startswith("CNAME"):
+                    if qTypeName.startswith("CNAME") and len(IPList)>0:
                         cnameRecordDict[Domain]=IPList
                         #print("Cname qtypes:",qTypeName)
                         print(cnameRecordDict)
