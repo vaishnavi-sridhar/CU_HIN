@@ -212,6 +212,7 @@ def ReadInLogs(LogList):
     print("Read in {} log; {} ({:.3f}%) logs are useful (contain valid domain/client/ips)".format(TotalLine,ValidLine,precent))
     print("Valid Domains: {}\nValid Clients: {}\nValid IPs: {}".format(len(DomainDict),len(ClientDict),len(IPDict)))
     #only retuen cleaned clients,domains.ips
+    print(cnameRecordDict)
     return (RL,DomainDict,ClientDict,IPDict,TotalLine,cnameRecordDict)
 
 
