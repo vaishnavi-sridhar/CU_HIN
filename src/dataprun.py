@@ -127,8 +127,6 @@ def ReadInLogs(LogList):
                     if qTypeName.startswith("CNAME"):
                         cnameRecordDict[Domain]=IPList
                         print("Cname qtypes:",qTypeName)
-                    else:
-                        print("Non cname qtypes:",qTypeName)
 
                     updateFlag = False #determine if can updates
                     
