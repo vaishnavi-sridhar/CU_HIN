@@ -70,7 +70,7 @@ def main():
   #print(RL) #Commenting out for faster runtime
   domain2ip = GenerateDomain2IP(RL, domain2index) #maps domain to resolved ip list
 
-  numDomains = len(domain2ip) 
+  numDomains = len(domain2ip)
   domainMatrixSize = max(domain2index.values()) + 1
   ipMatrixSize = max(ip2index.values()) + 1
   numIps = len(ip2index)
@@ -79,15 +79,15 @@ def main():
   logging.info("Number of ips in ip2index " + str(numIps))
   logging.info("Domain matrix size: " + str(domainMatrixSize))
 
-  ################## Labels #######################################
-  if FLAGS.good is not None and FLAGS.bad is not None:
-    label = LabelFiles(FLAGS.good, FLAGS.bad)
-  else:
-    label = Label()
-  labels = label.get_domain_labels(domain2index)
-  logging.info("Shape of labels: " + str(labels.shape))
- 
-  ################### Domain similarity ##########################
+  # ################## Labels #######################################
+  # if FLAGS.good is not None and FLAGS.bad is not None:
+  #   label = LabelFiles(FLAGS.good, FLAGS.bad)
+  # else:
+  #   label = Label()
+  # labels = label.get_domain_labels(domain2index)
+  # logging.info("Shape of labels: " + str(labels.shape))
+  #
+  # ################### Domain similarity ##########################
   #if not FLAGS.exclude_domain_similarity:
   #  time1 = time()
   #  domainSimilarityCSR = getDomainSimilarityCSR(domain2index,
@@ -102,133 +102,133 @@ def main():
 
 
   #################### ip to ip ###################################
-  if not FLAGS.exclude_ip2ip: 
-    time1 = time()
-    ip2ip = ip_to_ip(ip2index, FLAGS.netflow_files)
-    logging.info("Time for ip2ip " + 
-                 "{:.2f}".format(time() - time1))
-    print_nnz_info(ip2ip, "ip2ip")
-  else:
-    logging.info("Excluding ip2ip")
-    ip2ip = None
- 
-
-  ################### Domain resolve ip #############################
-  if not FLAGS.exclude_domain2ip:
-    time1 = time()
-    domainResolveIp = getDomainResolveIpCSR(domain2ip, domain2index, ip2index) 
-    logging.info("Time for domainResolveIp " + 
-                 "{:.2f}".format(time() - time1))
-    print_nnz_info(domainResolveIp, "domainResolveIp")
-  else:
-    logging.info("Excluding domainResolveIp")
-    domainResolveIp = None
 
   ################## Client query domain ############################
-  if not FLAGS.exclude_clientQdomain:
-    time1 = time()
-    clientQueryDomain = getClientQueriesDomainCSR(RL, domain2index, ip2index) 
-    logging.info("Time for clientQueryDomain " + 
-                 "{:.2f}".format(time() - time1))
-    print_nnz_info(clientQueryDomain, "clientQueryDomain")
-
-
-  ################### CNAME ########################################
-  cnameCSR = None # Not complete
-  print(domain2index.keys())
-  cnameMatrix = pd.DataFrame(0, index=list(domain2index.values()), columns=list(domain2index.keys()))
-
-  for row in cnameMatrix.iteritems:
-    ##
-     return
-
-
-  ################### Creating metapaths ############################
-  if clientQueryDomain is not None:
-    time1 = time()
-    domainQueriedByClient = clientQueryDomain.transpose()
-    domainQueriedBySameClient = domainQueriedByClient * clientQueryDomain
-    logging.info("Time to domainQueriedBySameClient " + 
-                 "{:.2f}".format(time() - time1))
-  else:
-    domainQueriedBySameClient = None
-
-  if domainResolveIp is not None:
-    time1 = time()
-    ipResolvedToDomain = domainResolveIp.transpose()
-    domainsShareIp = domainResolveIp * ipResolvedToDomain
-    logging.info("Time to create domainShareIp " + 
-                 "{:.2f}".format(time() - time1))
-  else:
-    domainsShareIp = None
-
-  domainsFromSameClientSegment = None # Not done
-
-  if domainResolveIp is not None:
-    R = domainResolveIp
-    Rt = R.transpose()
-    fromSameAttacker = R * Rt * R * Rt
-  else:
-    fromSameAttacker = None
-     
-  
- 
-  ################### Combine Matapaths ############################ 
-  timeTotal = time()
-  M = csr_matrix((domainMatrixSize, domainMatrixSize))
-  #if domainSimilarityCSR is not None:
-  #  time1 = time()
-  #  M = M + PathSim(domainSimilarityCSR)
-  #  logging.info("Time pathsim domainSimilarityCSR " + 
-  #               "{:.2f}".format(time() - time1))
-  if cnameCSR is not None:
-    time1 = time()
-    M = M + PathSim(cnameCSR)
-    logging.info("Time pathsim cnameCSR " + 
-                 "{:.2f}".format(time() - time1))
-  if domainQueriedBySameClient is not None:
-    time1 = time()
-    M = M + PathSim(domainQueriedBySameClient)
-    logging.info("Time pathsim domainQueriedBySameClient " + 
-                 "{:.2f}".format(time() - time1))
-  if domainsShareIp is not None:
-    time1 = time()
-    M = M + PathSim(domainsShareIp)
-    logging.info("Time pathsim domainShareIp " + 
-                 "{:.2f}".format(time() - time1))
-  if domainsFromSameClientSegment is not None:
-    time1 = time()
-    M = M + PathSim(domainsFromSameClientSegment)
-    logging.info("Time pathsim domainsFromSameClientSegment " + 
-                 "{:.2f}".format(time() - time1))
-  if fromSameAttacker is not None:
-    time1 = time()
-    M = M + PathSim(fromSameAttacker)
-    logging.info("Time pathsim fromSameAttacker " + 
-                 "{:.2f}".format(time() - time1))
-  logging.info("Time to calculate PathSim " + 
-                 "{:.2f}".format(time() - time1))
-
-
-  ################## Creating Affinity Matrix #########################
-  time1 = time()
-  M = affinity_matrix(M, FLAGS.affinity_threshold)
-  logging.info("Time to calculate affinity " + 
-                 "{:.2f}".format(time() - time1))
-  nnz = M.nnz
-  total = domainMatrixSize * domainMatrixSize
-  logging.info("nonzero entries (" + str(nnz) + "/" + str(total) + 
-                ") in M after affinity " + str(float(100 * nnz) / total) + "%")
-
- 
-  index2domain = {v: k for k, v in domain2index.items()}
-
-  ################## Iterating to convergence ########################
-  time1 = time()
-  F = converge(M, labels, FLAGS.mu, FLAGS.tol)
-  print("Y F domain")
-  for i in range(len(F)):
-    print(labels[i,:], F[i,:], index2domain[i])
+  # if not FLAGS.exclude_clientQdomain:
+  #   time1 = time()
+  #   clientQueryDomain = getClientQueriesDomainCSR(RL, domain2index, ip2index)
+  #   logging.info("Time for clientQueryDomain " +
+  #                "{:.2f}".format(time() - time1))
+  #   print_nnz_info(clientQueryDomain, "clientQueryDomain")
+  #   if not FLAGS.exclude_ip2ip:
+  #     time1 = time()
+  #     ip2ip = ip_to_ip(ip2index, FLAGS.netflow_files)
+  #     logging.info("Time for ip2ip " +
+  #                  "{:.2f}".format(time() - time1))
+  #     print_nnz_info(ip2ip, "ip2ip")
+  #   else:
+  #     logging.info("Excluding ip2ip")
+  #     ip2ip = None
+  #
+  #
+  #   ################### Domain resolve ip #############################
+  #   if not FLAGS.exclude_domain2ip:
+  #     time1 = time()
+  #     domainResolveIp = getDomainResolveIpCSR(domain2ip, domain2index, ip2index)
+  #     logging.info("Time for domainResolveIp " +
+  #                  "{:.2f}".format(time() - time1))
+  #     print_nnz_info(domainResolveIp, "domainResolveIp")
+  #   else:
+  #     logging.info("Excluding domainResolveIp")
+  #     domainResolveIp = None
+  #
+  #
+  # ################### CNAME ########################################
+  # cnameCSR = None # Not complete
+  # print(domain2index.keys())
+  # cnameMatrix = pd.DataFrame(0, index=list(domain2index.values()), columns=list(domain2index.keys()))
+  #
+  # for row in cnameMatrix.iteritems:
+  #   ##
+  #    return
+  #
+  #
+  # ################### Creating metapaths ############################
+  # if clientQueryDomain is not None:
+  #   time1 = time()
+  #   domainQueriedByClient = clientQueryDomain.transpose()
+  #   domainQueriedBySameClient = domainQueriedByClient * clientQueryDomain
+  #   logging.info("Time to domainQueriedBySameClient " +
+  #                "{:.2f}".format(time() - time1))
+  # else:
+  #   domainQueriedBySameClient = None
+  #
+  # if domainResolveIp is not None:
+  #   time1 = time()
+  #   ipResolvedToDomain = domainResolveIp.transpose()
+  #   domainsShareIp = domainResolveIp * ipResolvedToDomain
+  #   logging.info("Time to create domainShareIp " +
+  #                "{:.2f}".format(time() - time1))
+  # else:
+  #   domainsShareIp = None
+  #
+  # domainsFromSameClientSegment = None # Not done
+  #
+  # if domainResolveIp is not None:
+  #   R = domainResolveIp
+  #   Rt = R.transpose()
+  #   fromSameAttacker = R * Rt * R * Rt
+  # else:
+  #   fromSameAttacker = None
+  #
+  #
+  #
+  # ################### Combine Matapaths ############################
+  # timeTotal = time()
+  # M = csr_matrix((domainMatrixSize, domainMatrixSize))
+  # #if domainSimilarityCSR is not None:
+  # #  time1 = time()
+  # #  M = M + PathSim(domainSimilarityCSR)
+  # #  logging.info("Time pathsim domainSimilarityCSR " +
+  # #               "{:.2f}".format(time() - time1))
+  # if cnameCSR is not None:
+  #   time1 = time()
+  #   M = M + PathSim(cnameCSR)
+  #   logging.info("Time pathsim cnameCSR " +
+  #                "{:.2f}".format(time() - time1))
+  # if domainQueriedBySameClient is not None:
+  #   time1 = time()
+  #   M = M + PathSim(domainQueriedBySameClient)
+  #   logging.info("Time pathsim domainQueriedBySameClient " +
+  #                "{:.2f}".format(time() - time1))
+  # if domainsShareIp is not None:
+  #   time1 = time()
+  #   M = M + PathSim(domainsShareIp)
+  #   logging.info("Time pathsim domainShareIp " +
+  #                "{:.2f}".format(time() - time1))
+  # if domainsFromSameClientSegment is not None:
+  #   time1 = time()
+  #   M = M + PathSim(domainsFromSameClientSegment)
+  #   logging.info("Time pathsim domainsFromSameClientSegment " +
+  #                "{:.2f}".format(time() - time1))
+  # if fromSameAttacker is not None:
+  #   time1 = time()
+  #   M = M + PathSim(fromSameAttacker)
+  #   logging.info("Time pathsim fromSameAttacker " +
+  #                "{:.2f}".format(time() - time1))
+  # logging.info("Time to calculate PathSim " +
+  #                "{:.2f}".format(time() - time1))
+  #
+  #
+  # ################## Creating Affinity Matrix #########################
+  # time1 = time()
+  # M = affinity_matrix(M, FLAGS.affinity_threshold)
+  # logging.info("Time to calculate affinity " +
+  #                "{:.2f}".format(time() - time1))
+  # nnz = M.nnz
+  # total = domainMatrixSize * domainMatrixSize
+  # logging.info("nonzero entries (" + str(nnz) + "/" + str(total) +
+  #               ") in M after affinity " + str(float(100 * nnz) / total) + "%")
+  #
+  #
+  # index2domain = {v: k for k, v in domain2index.items()}
+  #
+  # ################## Iterating to convergence ########################
+  # time1 = time()
+  # F = converge(M, labels, FLAGS.mu, FLAGS.tol)
+  # print("Y F domain")
+  # for i in range(len(F)):
+  #   print(labels[i,:], F[i,:], index2domain[i])
  
 
 if __name__ == '__main__':
