@@ -175,56 +175,56 @@ def main():
 
 
 
-  # ################### Combine Matapaths ############################
-  # timeTotal = time()
-  # M = csr_matrix((domainMatrixSize, domainMatrixSize))
-  # #if domainSimilarityCSR is not None:
-  # #  time1 = time()
-  # #  M = M + PathSim(domainSimilarityCSR)
-  # #  logging.info("Time pathsim domainSimilarityCSR " +
-  # #               "{:.2f}".format(time() - time1))
+  ################### Combine Matapaths ############################
+  timeTotal = time()
+  M = csr_matrix((domainMatrixSize, domainMatrixSize))
+  #if domainSimilarityCSR is not None:
+  #  time1 = time()
+  #  M = M + PathSim(domainSimilarityCSR)
+  #  logging.info("Time pathsim domainSimilarityCSR " +
+  #               "{:.2f}".format(time() - time1))
   # if cnameCSR is not None:
   #   time1 = time()
   #   M = M + PathSim(cnameCSR)
   #   logging.info("Time pathsim cnameCSR " +
   #                "{:.2f}".format(time() - time1))
-  # if domainQueriedBySameClient is not None:
-  #   time1 = time()
-  #   M = M + PathSim(domainQueriedBySameClient)
-  #   logging.info("Time pathsim domainQueriedBySameClient " +
-  #                "{:.2f}".format(time() - time1))
-  # if domainsShareIp is not None:
-  #   time1 = time()
-  #   M = M + PathSim(domainsShareIp)
-  #   logging.info("Time pathsim domainShareIp " +
-  #                "{:.2f}".format(time() - time1))
-  # if domainsFromSameClientSegment is not None:
-  #   time1 = time()
-  #   M = M + PathSim(domainsFromSameClientSegment)
-  #   logging.info("Time pathsim domainsFromSameClientSegment " +
-  #                "{:.2f}".format(time() - time1))
-  # if fromSameAttacker is not None:
-  #   time1 = time()
-  #   M = M + PathSim(fromSameAttacker)
-  #   logging.info("Time pathsim fromSameAttacker " +
-  #                "{:.2f}".format(time() - time1))
-  # logging.info("Time to calculate PathSim " +
-  #                "{:.2f}".format(time() - time1))
-  #
-  #
-  # ################## Creating Affinity Matrix #########################
-  # time1 = time()
-  # M = affinity_matrix(M, FLAGS.affinity_threshold)
-  # logging.info("Time to calculate affinity " +
-  #                "{:.2f}".format(time() - time1))
-  # nnz = M.nnz
-  # total = domainMatrixSize * domainMatrixSize
-  # logging.info("nonzero entries (" + str(nnz) + "/" + str(total) +
-  #               ") in M after affinity " + str(float(100 * nnz) / total) + "%")
-  #
-  #
-  # index2domain = {v: k for k, v in domain2index.items()}
-  #
+  if domainQueriedBySameClient is not None:
+    time1 = time()
+    M = M + PathSim(domainQueriedBySameClient)
+    logging.info("Time pathsim domainQueriedBySameClient " +
+                 "{:.2f}".format(time() - time1))
+  if domainsShareIp is not None:
+    time1 = time()
+    M = M + PathSim(domainsShareIp)
+    logging.info("Time pathsim domainShareIp " +
+                 "{:.2f}".format(time() - time1))
+  if domainsFromSameClientSegment is not None:
+    time1 = time()
+    M = M + PathSim(domainsFromSameClientSegment)
+    logging.info("Time pathsim domainsFromSameClientSegment " +
+                 "{:.2f}".format(time() - time1))
+  if fromSameAttacker is not None:
+    time1 = time()
+    M = M + PathSim(fromSameAttacker)
+    logging.info("Time pathsim fromSameAttacker " +
+                 "{:.2f}".format(time() - time1))
+  logging.info("Time to calculate PathSim " +
+                 "{:.2f}".format(time() - time1))
+
+
+  ################## Creating Affinity Matrix #########################
+  time1 = time()
+  M = affinity_matrix(M, FLAGS.affinity_threshold)
+  logging.info("Time to calculate affinity " +
+                 "{:.2f}".format(time() - time1))
+  nnz = M.nnz
+  total = domainMatrixSize * domainMatrixSize
+  logging.info("nonzero entries (" + str(nnz) + "/" + str(total) +
+                ") in M after affinity " + str(float(100 * nnz) / total) + "%")
+
+
+  index2domain = {v: k for k, v in domain2index.items()}
+
   # ################## Iterating to convergence ########################
   # time1 = time()
   # F = converge(M, labels, FLAGS.mu, FLAGS.tol)
