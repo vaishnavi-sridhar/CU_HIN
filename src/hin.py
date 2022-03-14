@@ -134,15 +134,15 @@ def main():
       domainResolveIp = None
 
 
-  ################### CNAME ########################################
-  cnameCSR = None # Not complete
-  print(domain2index.keys())
-  cnameMatrix = pd.DataFrame(0, index=list(domain2index.values()), columns=list(domain2index.keys()))
-
-  print("CName shape:",cnameMatrix.shape)
-  for row in cnameMatrix.iteritems:
-    ##
-     return
+  # ################### CNAME ########################################
+  # cnameCSR = None # Not complete
+  # print(domain2index.keys())
+  # cnameMatrix = pd.DataFrame(0, index=list(domain2index.values()), columns=list(domain2index.keys()))
+  #
+  # print("CName shape:",cnameMatrix.shape)
+  # for row in cnameMatrix.iteritems:
+  #   ##
+  #    return
 
 
   ################### Creating metapaths ############################
