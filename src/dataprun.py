@@ -352,7 +352,7 @@ def GenerateWL(LogLists,kd=1,ka=1,kc=1,kip=1,ShowTime=True):
         tt = et - st
         if (ShowTime):
             print()
-            print("Purn cost:{}".format(tt))
+            print("Prun cost:{}".format(tt))
         return (RL, DD, IPD,CNameRecords)
     else:
         return None
