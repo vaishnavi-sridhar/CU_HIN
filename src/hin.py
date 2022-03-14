@@ -212,18 +212,18 @@ def main():
                  "{:.2f}".format(time() - time1))
 
 
-  ################## Creating Affinity Matrix #########################
-  time1 = time()
-  M = affinity_matrix(M, FLAGS.affinity_threshold)
-  logging.info("Time to calculate affinity " +
-                 "{:.2f}".format(time() - time1))
-  nnz = M.nnz
-  total = domainMatrixSize * domainMatrixSize
-  logging.info("nonzero entries (" + str(nnz) + "/" + str(total) +
-                ") in M after affinity " + str(float(100 * nnz) / total) + "%")
-
-
-  index2domain = {v: k for k, v in domain2index.items()}
+  # ################## Creating Affinity Matrix #########################
+  # time1 = time()
+  # M = affinity_matrix(M, FLAGS.affinity_threshold)
+  # logging.info("Time to calculate affinity " +
+  #                "{:.2f}".format(time() - time1))
+  # nnz = M.nnz
+  # total = domainMatrixSize * domainMatrixSize
+  # logging.info("nonzero entries (" + str(nnz) + "/" + str(total) +
+  #               ") in M after affinity " + str(float(100 * nnz) / total) + "%")
+  #
+  #
+  # index2domain = {v: k for k, v in domain2index.items()}
 
   # ################## Iterating to convergence ########################
   # time1 = time()
