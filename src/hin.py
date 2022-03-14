@@ -227,7 +227,7 @@ def main():
 
   # ################## Iterating to convergence ########################
   # time1 = time()
-  # F = converge(M, labels, FLAGS.mu, FLAGS.tol)
+  #F = converge(M, labels, FLAGS.mu, FLAGS.tol)
   # print("Y F domain")
   # for i in range(len(F)):
   #   print(labels[i,:], F[i,:], index2domain[i])
