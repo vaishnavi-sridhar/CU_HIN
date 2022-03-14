@@ -178,38 +178,38 @@ def main():
   ################### Combine Matapaths ############################
   timeTotal = time()
   M = csr_matrix((domainMatrixSize, domainMatrixSize))
-  #if domainSimilarityCSR is not None:
-  #  time1 = time()
-  #  M = M + PathSim(domainSimilarityCSR)
-  #  logging.info("Time pathsim domainSimilarityCSR " +
-  #               "{:.2f}".format(time() - time1))
-  # if cnameCSR is not None:
+  # if domainSimilarityCSR is not None:
   #   time1 = time()
-  #   M = M + PathSim(cnameCSR)
-  #   logging.info("Time pathsim cnameCSR " +
+  #   M = M + PathSim(domainSimilarityCSR)
+  #   logging.info("Time pathsim domainSimilarityCSR " +
   #                "{:.2f}".format(time() - time1))
+  #  if cnameCSR is not None:
+  #    time1 = time()
+  #    M = M + PathSim(cnameCSR)
+  #    logging.info("Time pathsim cnameCSR " +
+  #               "{:.2f}".format(time() - time1))
   if domainQueriedBySameClient is not None:
     time1 = time()
     M = M + PathSim(domainQueriedBySameClient)
-    print("Time pathsim domainQueriedBySameClient " +
+  print("Time pathsim domainQueriedBySameClient " +
                  "{:.2f}".format(time() - time1))
-  if domainsShareIp is not None:
-    time1 = time()
-    M = M + PathSim(domainsShareIp)
-    print("Time pathsim domainShareIp " +
-                 "{:.2f}".format(time() - time1))
-  if domainsFromSameClientSegment is not None:
-    time1 = time()
-    M = M + PathSim(domainsFromSameClientSegment)
-    print("Time pathsim domainsFromSameClientSegment " +
-                 "{:.2f}".format(time() - time1))
-  if fromSameAttacker is not None:
-    time1 = time()
-    M = M + PathSim(fromSameAttacker)
-    print("Time pathsim fromSameAttacker " +
-                 "{:.2f}".format(time() - time1))
-  print("Time to calculate PathSim " +
-                 "{:.2f}".format(time() - time1))
+  # if domainsShareIp is not None:
+  #    time1 = time()
+  #    M = M + PathSim(domainsShareIp)
+  # print("Time pathsim domainShareIp " +
+  #                 "{:.2f}".format(time() - time1))
+  # if domainsFromSameClientSegment is not None:
+  #    time1 = time()
+  #    M = M + PathSim(domainsFromSameClientSegment)
+  # print("Time pathsim domainsFromSameClientSegment " +
+  #                 "{:.2f}".format(time() - time1))
+  # if fromSameAttacker is not None:
+  #    time1 = time()
+  #    M = M + PathSim(fromSameAttacker)
+  # print("Time pathsim fromSameAttacker " +
+  #                 "{:.2f}".format(time() - time1))
+  # print("Time to calculate PathSim " +
+  #                 "{:.2f}".format(time() - time1))
 
 
   # ################## Creating Affinity Matrix #########################
