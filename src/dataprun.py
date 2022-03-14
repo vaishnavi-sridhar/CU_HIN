@@ -341,7 +341,8 @@ def GenerateWL(LogLists,kd=1,ka=1,kc=1,kip=1,ShowTime=True):
         # CName record filtering
         for key,value in dict(CNameRecords).items():
             if key not in DD.keys():
-                if value not in DD.keys():
+                commonList =[item for item in value if item in DD.keys()]
+                if len(commonList) == 0:
                     del CNameRecords[key]
 
 
