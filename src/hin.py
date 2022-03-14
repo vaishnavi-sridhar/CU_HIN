@@ -71,22 +71,23 @@ def main():
   domain2ip = GenerateDomain2IP(RL, domain2index) #maps domain to resolved ip list
 
   numDomains = len(domain2ip)
+  numDomainsindex = len(domain2index)
   domainMatrixSize = max(domain2index.values()) + 1
   ipMatrixSize = max(ip2index.values()) + 1
   numIps = len(ip2index)
   print("Number of domains in domain2ip " , str(numDomains))
-  print("Number of domains in domain2index " , str(numDomains))
+  print("Number of domains in domain2index " , str(numDomainsindex))
   print("Number of ips in ip2index " , str(numIps))
   print("Domain matrix size: " , str(domainMatrixSize))
 
-  # ################## Labels #######################################
-  # if FLAGS.good is not None and FLAGS.bad is not None:
-  #   label = LabelFiles(FLAGS.good, FLAGS.bad)
-  # else:
-  #   label = Label()
-  # labels = label.get_domain_labels(domain2index)
-  # logging.info("Shape of labels: " + str(labels.shape))
-  #
+  ################## Labels #######################################
+  if FLAGS.good is not None and FLAGS.bad is not None:
+    label = LabelFiles(FLAGS.good, FLAGS.bad)
+  else:
+    label = Label()
+  labels = label.get_domain_labels(domain2index)
+  logging.info("Shape of labels: " + str(labels.shape))
+
   # ################### Domain similarity ##########################
   #if not FLAGS.exclude_domain_similarity:
   #  time1 = time()
