@@ -23,7 +23,7 @@ def PathSim(M):
 
       tuples = zip(*sorted(zip(rows, cols)))
       rows, cols = [ list(tuple) for tuple in tuples ]
-      logging.info("Number of items to perform pathsim: " + str(len(rows)))
+      print("Number of items to perform pathsim: " + str(len(rows)))
       for index in range(len(rows)):
         i = rows[index]
         j = cols[index]

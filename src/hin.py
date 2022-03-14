@@ -80,13 +80,13 @@ def main():
   print("Number of ips in ip2index " , str(numIps))
   print("Domain matrix size: " , str(domainMatrixSize))
 
-  # ################## Labels #######################################
-  # if FLAGS.good is not None and FLAGS.bad is not None:
-  #   label = LabelFiles(FLAGS.good, FLAGS.bad)
-  # else:
-  #   label = Label()
-  # labels = label.get_domain_labels(domain2index)
-  # logging.info("Shape of labels: " + str(labels.shape))
+  ################## Labels #######################################
+  if FLAGS.good is not None and FLAGS.bad is not None:
+    label = LabelFiles(FLAGS.good, FLAGS.bad)
+  else:
+    label = Label()
+  labels = label.get_domain_labels(domain2index)
+  logging.info("Shape of labels: " + str(labels.shape))
 
   ################### Domain similarity ##########################
   # if not FLAGS.exclude_domain_similarity:
@@ -193,44 +193,44 @@ def main():
     M = M + PathSim(domainQueriedBySameClient)
   print("Time pathsim domainQueriedBySameClient " +
                  "{:.2f}".format(time() - time1))
-  # if domainsShareIp is not None:
-  #    time1 = time()
-  #    M = M + PathSim(domainsShareIp)
-  # print("Time pathsim domainShareIp " +
-  #                 "{:.2f}".format(time() - time1))
-  # if domainsFromSameClientSegment is not None:
-  #    time1 = time()
-  #    M = M + PathSim(domainsFromSameClientSegment)
-  # print("Time pathsim domainsFromSameClientSegment " +
-  #                 "{:.2f}".format(time() - time1))
-  # if fromSameAttacker is not None:
-  #    time1 = time()
-  #    M = M + PathSim(fromSameAttacker)
-  # print("Time pathsim fromSameAttacker " +
-  #                 "{:.2f}".format(time() - time1))
-  # print("Time to calculate PathSim " +
-  #                 "{:.2f}".format(time() - time1))
+  if domainsShareIp is not None:
+     time1 = time()
+     M = M + PathSim(domainsShareIp)
+  print("Time pathsim domainShareIp " +
+                  "{:.2f}".format(time() - time1))
+  if domainsFromSameClientSegment is not None:
+     time1 = time()
+     M = M + PathSim(domainsFromSameClientSegment)
+  print("Time pathsim domainsFromSameClientSegment " +
+                  "{:.2f}".format(time() - time1))
+  if fromSameAttacker is not None:
+     time1 = time()
+     M = M + PathSim(fromSameAttacker)
+  print("Time pathsim fromSameAttacker " +
+                  "{:.2f}".format(time() - time1))
+  print("Time to calculate PathSim " +
+                  "{:.2f}".format(time() - time1))
 
 
-  # ################## Creating Affinity Matrix #########################
-  # time1 = time()
-  # M = affinity_matrix(M, FLAGS.affinity_threshold)
-  # logging.info("Time to calculate affinity " +
-  #                "{:.2f}".format(time() - time1))
-  # nnz = M.nnz
-  # total = domainMatrixSize * domainMatrixSize
-  # logging.info("nonzero entries (" + str(nnz) + "/" + str(total) +
-  #               ") in M after affinity " + str(float(100 * nnz) / total) + "%")
-  #
-  #
-  # index2domain = {v: k for k, v in domain2index.items()}
+  ################## Creating Affinity Matrix #########################
+  time1 = time()
+  M = affinity_matrix(M, FLAGS.affinity_threshold)
+  logging.info("Time to calculate affinity " +
+                 "{:.2f}".format(time() - time1))
+  nnz = M.nnz
+  total = domainMatrixSize * domainMatrixSize
+  logging.info("nonzero entries (" + str(nnz) + "/" + str(total) +
+                ") in M after affinity " + str(float(100 * nnz) / total) + "%")
 
-  # ################## Iterating to convergence ########################
-  # time1 = time()
-  #F = converge(M, labels, FLAGS.mu, FLAGS.tol)
-  # print("Y F domain")
-  # for i in range(len(F)):
-  #   print(labels[i,:], F[i,:], index2domain[i])
+
+  index2domain = {v: k for k, v in domain2index.items()}
+
+  ################## Iterating to convergence ########################
+  time1 = time()
+  F = converge(M, labels, FLAGS.mu, FLAGS.tol)
+  print("Y F domain")
+  for i in range(len(F)):
+    print(labels[i,:], F[i,:], index2domain[i])
  
 
 if __name__ == '__main__':
