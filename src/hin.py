@@ -108,17 +108,17 @@ def main():
   if not FLAGS.exclude_clientQdomain:
     time1 = time()
     clientQueryDomain = getClientQueriesDomainCSR(RL, domain2index, ip2index)
-    logging.info("Time for clientQueryDomain " +
+    print("Time for clientQueryDomain " +
                  "{:.2f}".format(time() - time1))
     print_nnz_info(clientQueryDomain, "clientQueryDomain")
     if not FLAGS.exclude_ip2ip:
       time1 = time()
       ip2ip = ip_to_ip(ip2index, FLAGS.netflow_files)
-      logging.info("Time for ip2ip " +
+      print("Time for ip2ip "+
                    "{:.2f}".format(time() - time1))
       print_nnz_info(ip2ip, "ip2ip")
     else:
-      logging.info("Excluding ip2ip")
+      print("Excluding ip2ip")
       ip2ip = None
 
 
@@ -126,11 +126,11 @@ def main():
     if not FLAGS.exclude_domain2ip:
       time1 = time()
       domainResolveIp = getDomainResolveIpCSR(domain2ip, domain2index, ip2index)
-      logging.info("Time for domainResolveIp " +
+      print("Time for domainResolveIp " +
                    "{:.2f}".format(time() - time1))
       print_nnz_info(domainResolveIp, "domainResolveIp")
     else:
-      logging.info("Excluding domainResolveIp")
+      print("Excluding domainResolveIp")
       domainResolveIp = None
 
 
@@ -150,7 +150,7 @@ def main():
     time1 = time()
     domainQueriedByClient = clientQueryDomain.transpose()
     domainQueriedBySameClient = domainQueriedByClient * clientQueryDomain
-    logging.info("Time to domainQueriedBySameClient " +
+    print("Time to domainQueriedBySameClient " +
                  "{:.2f}".format(time() - time1))
   else:
     domainQueriedBySameClient = None
@@ -159,7 +159,7 @@ def main():
     time1 = time()
     ipResolvedToDomain = domainResolveIp.transpose()
     domainsShareIp = domainResolveIp * ipResolvedToDomain
-    logging.info("Time to create domainShareIp " +
+    print("Time to create domainShareIp " +
                  "{:.2f}".format(time() - time1))
   else:
     domainsShareIp = None
@@ -191,24 +191,24 @@ def main():
   if domainQueriedBySameClient is not None:
     time1 = time()
     M = M + PathSim(domainQueriedBySameClient)
-    logging.info("Time pathsim domainQueriedBySameClient " +
+    print("Time pathsim domainQueriedBySameClient " +
                  "{:.2f}".format(time() - time1))
   if domainsShareIp is not None:
     time1 = time()
     M = M + PathSim(domainsShareIp)
-    logging.info("Time pathsim domainShareIp " +
+    print("Time pathsim domainShareIp " +
                  "{:.2f}".format(time() - time1))
   if domainsFromSameClientSegment is not None:
     time1 = time()
     M = M + PathSim(domainsFromSameClientSegment)
-    logging.info("Time pathsim domainsFromSameClientSegment " +
+    print("Time pathsim domainsFromSameClientSegment " +
                  "{:.2f}".format(time() - time1))
   if fromSameAttacker is not None:
     time1 = time()
     M = M + PathSim(fromSameAttacker)
-    logging.info("Time pathsim fromSameAttacker " +
+    print("Time pathsim fromSameAttacker " +
                  "{:.2f}".format(time() - time1))
-  logging.info("Time to calculate PathSim " +
+  print("Time to calculate PathSim " +
                  "{:.2f}".format(time() - time1))
 
 
