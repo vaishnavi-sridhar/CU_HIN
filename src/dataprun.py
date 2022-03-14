@@ -340,9 +340,9 @@ def GenerateWL(LogLists,kd=1,ka=1,kc=1,kip=1,ShowTime=True):
         print(CNameRecords)
         print("CName records count before filtering:", len(CNameRecords))
         # CName record filtering
-        for key in CNameRecords.keys():
+        for key,value in dict(CNameRecords).items():
             if key not in DD.keys():
-                CNameRecords.pop(key)
+                del CNameRecords[key]
 
         print("CName records count:", len(CNameRecords))
 
