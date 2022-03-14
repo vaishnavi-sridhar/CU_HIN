@@ -101,6 +101,7 @@ def ReadInLogs(LogList):
     for LogFile in LogList:
         #print(Log)
         Log = os.path.join(LogFile)
+        cnameRecordDict = {}
         try:
             with open(Log,"r") as LogData:
          
@@ -124,7 +125,7 @@ def ReadInLogs(LogList):
                     aliasDomainList = [] if dline[21] == "-" else dline[21].split(",")
 
                     #Code snippet for CName records
-                    cnameRecordDict = {}
+
                     if qTypeName.startswith("CNAME") and len(aliasDomainList)>0:
                         cnameRecordDict[Domain]=aliasDomainList
                         #print("Cname qtypes:",qTypeName)
