@@ -74,10 +74,10 @@ def main():
   domainMatrixSize = max(domain2index.values()) + 1
   ipMatrixSize = max(ip2index.values()) + 1
   numIps = len(ip2index)
-  logging.debug("Number of domains in domain2ip " + str(numDomains))
-  logging.debug("Number of domains in domain2index " + str(numDomains))
-  logging.debug("Number of ips in ip2index " + str(numIps))
-  logging.debug("Domain matrix size: " + str(domainMatrixSize))
+  print("Number of domains in domain2ip " , str(numDomains))
+  print("Number of domains in domain2index " , str(numDomains))
+  print("Number of ips in ip2index " , str(numIps))
+  print("Domain matrix size: " , str(domainMatrixSize))
 
   # ################## Labels #######################################
   # if FLAGS.good is not None and FLAGS.bad is not None:
