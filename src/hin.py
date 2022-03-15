@@ -197,11 +197,11 @@ def main():
     #   M = M + PathSim(domainSimilarityCSR)
     #   logging.info("Time pathsim domainSimilarityCSR " +
     #                "{:.2f}".format(time() - time1))
-    #  if cnameCSR is not None:
-    #    time1 = time()
-    #    M = M + PathSim(cnameCSR)
-    #    logging.info("Time pathsim cnameCSR " +
-    #               "{:.2f}".format(time() - time1))
+    if cname_matrix is not None:
+        time1 = time()
+        M = M + PathSim(cname_matrix)
+        logging.info("Time pathsim cnameCSR " +
+                  "{:.2f}".format(time() - time1))
     if domainQueriedBySameClient is not None:
         time1 = time()
         M = M + PathSim(domainQueriedBySameClient)
