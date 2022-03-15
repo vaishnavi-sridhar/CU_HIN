@@ -71,12 +71,17 @@ def main():
     RL, domain2index, ip2index, CNameRecords = GenerateWL(FLAGS.dns_files)
 
     tuple_list = []
+    tupList =[]
     for innerList in CNameRecords:
       tuple_list.append(list(combinations(innerList, 2)))
     print("FinalList:", tuple_list)
     
     for item in tuple_list:
-        print("Item:",item[0])
+        tupList.append(item)
+
+    sortedTup = [tuple(sorted(val)) for val in tupList]
+    tupListWoDup = list(set(sortedTup))
+
     # print(RL) #Commenting out for faster runtime
     domain2ip = GenerateDomain2IP(RL, domain2index)  # maps domain to resolved ip list
 
