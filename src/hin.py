@@ -80,9 +80,10 @@ def main():
         tupList.append(item[0])
     print("List of tuples:", tupList)
     sortedTup = [(sorted(val)) for val in tupList]
-    tupListWoDup = list(set(sortedTup))
 
-    print("List of Tuples after removal of duplicates : " + str(tupListWoDup))
+    # tupListWoDup = list(set(sortedTup))
+
+    print("List of Tuples after removal of duplicates : " + str(set(sortedTup)))
     # print(RL) #Commenting out for faster runtime
     domain2ip = GenerateDomain2IP(RL, domain2index)  # maps domain to resolved ip list
 
