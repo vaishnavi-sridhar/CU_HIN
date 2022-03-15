@@ -77,9 +77,9 @@ def main():
 
     
     for item in tuple_list:
-        tupList.append(item)
-    print("FinalList:", tupList)
-    sortedTup = [tuple(sorted(val)) for val in tupList]
+        tupList.append(item[0])
+    print("List of tuples:", tupList)
+    sortedTup = [(sorted(val)) for val in tupList]
     tupListWoDup = list(set(sortedTup))
 
     print("List of Tuples after removal of duplicates : " + str(tupListWoDup))
