@@ -83,7 +83,7 @@ def main():
     final_lst = []
     for tuple_item in tupList:
         if tuple_item[0] in domain2index.keys() and tuple_item[1] in domain2index.keys():
-            final_lst.append(domain2index[tuple_item[0]], domain2index[tuple_item[1]])
+            final_lst.append((domain2index[tuple_item[0]], domain2index[tuple_item[1]]))
 
     print(final_lst)
 
