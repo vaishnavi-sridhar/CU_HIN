@@ -156,7 +156,10 @@ def main():
     cname_matrix = pd.DataFrame(0, index=list(domain2index.values()), columns=list(domain2index.keys()))
 
     print("CName shape:", cname_matrix.shape)
+    for (i,j) in final_lst:
+        cname_matrix.iat[i,j]=1
 
+    print("Non zero count:", np.count_nonzero(cname_matrix))
 
     ################### Creating metapaths ############################
     if clientQueryDomain is not None:
