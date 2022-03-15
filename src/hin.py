@@ -70,7 +70,7 @@ def main():
   RL, domain2index, ip2index, CNameRecords =  GenerateWL(FLAGS.dns_files)
   finalList= []
   for innerList in CNameRecords:
-    finalList.append(list(combinations(innerList,2)))
+    finalList.append(combinations(innerList,2))
   print("FinalList:",finalList)
   #print(RL) #Commenting out for faster runtime
   domain2ip = GenerateDomain2IP(RL, domain2index) #maps domain to resolved ip list
