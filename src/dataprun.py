@@ -101,7 +101,8 @@ def ReadInLogs(LogList):
     for LogFile in LogList:
         #print(Log)
         Log = os.path.join(LogFile)
-        cnameRecordDict = {}
+
+        cnameRecordList = []
         try:
             with open(Log,"r") as LogData:
          
@@ -127,7 +128,8 @@ def ReadInLogs(LogList):
                     #Code snippet for CName records
 
                     if qTypeName.startswith("CNAME") and len(aliasDomainList)>0:
-                        cnameRecordDict[Domain]=aliasDomainList
+                        aliasDomainList.append(Domain)
+                        cnameRecordList.append(aliasDomainList)
                         #print("Cname qtypes:",qTypeName)
                         #print(cnameRecordDict)
 
@@ -216,8 +218,8 @@ def ReadInLogs(LogList):
     print("Read in {} log; {} ({:.3f}%) logs are useful (contain valid domain/client/ips)".format(TotalLine,ValidLine,precent))
     print("Valid Domains: {}\nValid Clients: {}\nValid IPs: {}".format(len(DomainDict),len(ClientDict),len(IPDict)))
     #only retuen cleaned clients,domains.ips
-    print(cnameRecordDict)
-    return (RL,DomainDict,ClientDict,IPDict,TotalLine,cnameRecordDict)
+    print(cnameRecordList)
+    return (RL,DomainDict,ClientDict,IPDict,TotalLine,cnameRecordList)
 
 
 def Prun(DomainDict,ClientDict,IPDict,TotalCall,kd=1,ka=1,kc=1,kip=1):

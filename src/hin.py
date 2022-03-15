@@ -13,6 +13,7 @@ from scipy.sparse import csr_matrix
 from affinity_matrix import affinity_matrix, converge
 import numpy as np
 import pandas as pd
+from itertools import combinations
 
 def print_nnz_info(M: csr_matrix, name: str):
   """ Prints nnz info
@@ -67,6 +68,10 @@ def main():
   logging.info("Netflow files: " + str(FLAGS.netflow_files))
 
   RL, domain2index, ip2index, CNameRecords =  GenerateWL(FLAGS.dns_files)
+  finalList= []
+  for innerList in CNameRecords:
+    finalList.append(list(combinations(innerList,2)))
+  print("FinalList:",finalList)
   #print(RL) #Commenting out for faster runtime
   domain2ip = GenerateDomain2IP(RL, domain2index) #maps domain to resolved ip list
 
