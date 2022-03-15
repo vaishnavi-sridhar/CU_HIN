@@ -79,11 +79,14 @@ def main():
     for item in tuple_list:
         tupList.append(item[0])
     print("List of tuples:", tupList)
-    sortedTup = [(sorted(val)) for val in tupList]
 
-    # tupListWoDup = list(set(sortedTup))
+    final_lst = []
+    for tuple_item in tupList:
+        if tuple_item[0] in domain2index.keys() and tuple_item[1] in domain2index.keys():
+            final_lst.append(domain2index[tuple_item[0]], domain2index[tuple_item[1]])
 
-    print("List of Tuples after removal of duplicates : " + str(set(sortedTup)))
+    print(final_lst)
+
     # print(RL) #Commenting out for faster runtime
     domain2ip = GenerateDomain2IP(RL, domain2index)  # maps domain to resolved ip list
 
