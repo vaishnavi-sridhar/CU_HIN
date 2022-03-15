@@ -74,14 +74,15 @@ def main():
     tupList =[]
     for innerList in CNameRecords:
       tuple_list.append(list(combinations(innerList, 2)))
-    print("FinalList:", tuple_list)
+
     
     for item in tuple_list:
         tupList.append(item)
-
+    print("FinalList:", tupList)
     sortedTup = [tuple(sorted(val)) for val in tupList]
     tupListWoDup = list(set(sortedTup))
 
+    print("List of Tuples after removal of duplicates : " + str(tupListWoDup))
     # print(RL) #Commenting out for faster runtime
     domain2ip = GenerateDomain2IP(RL, domain2index)  # maps domain to resolved ip list
 
