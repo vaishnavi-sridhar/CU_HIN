@@ -1,25 +1,25 @@
 import re #check valid Domain/String
 from datetime import datetime #running time
-from ipaddress import ip_address #check valid ip 
-import sys #Eception information 
-import os 
+from ipaddress import ip_address #check valid ip
+import sys #Eception information
+import os
 
-#Tools 
+#Tools
 def ValidDomain(Domain):
-    
+
     """
     Description:
-    This function check if the input string is a valid domain name 
+    This function check if the input string is a valid domain name
     Based on given rules
 
     Argument: String
 
     Return: True if it is a valid domain name, False elsewise
-    
+
     """
-    
+
     #Valid Domain
-    DomainSize = len(Domain) >= 2 and len(Domain) <= 255 # 2 < Domain length < 255 
+    DomainSize = len(Domain) >= 2 and len(Domain) <= 255 # 2 < Domain length < 255
     DomainChar = re.search("[^a-zA-Z0-9\.\-]",Domain) == None #Only a-z/A-Z, 0-9,-,.
     DomainFirst = re.search("[a-zA-Z0-9]",Domain[0]) #Only a-zA-Z0-9
     DomainLast = Domain[-1] != "-" and Domain[-1] != "." #Not - or .
@@ -31,13 +31,13 @@ def ValidIP(IP):
 
     """
     Description:
-    This function check if the input string is a valid IP address, using 
+    This function check if the input string is a valid IP address, using
     ip_address from ipaddress library
 
     Argument: String
 
     Return: True if it is a valid IP address, False elsewise
-    
+
     """
 
 
@@ -51,18 +51,18 @@ def Answer2IP(Answer):
 
     """
     Description:
-    This function parses the input string from the Answer into list of ip address in strings 
+    This function parses the input string from the Answer into list of ip address in strings
 
     Argument: String
 
-    Return: List of valid ip address in string, if there is none, return an empty list 
-    
+    Return: List of valid ip address in string, if there is none, return an empty list
+
     """
 
     answers = Answer.split(",") #potential multiple ips
     result = [] #<string>
-    for a in answers: 
-        #check IP addresses                                              
+    for a in answers:
+        #check IP addresses
         if(ValidIP(a)):
             result.append(a)
 
@@ -73,12 +73,12 @@ def Answer2IP(Answer):
 def ReadInLogs(LogList):
 
     """
-    Description: 
-    This function parses the list of input DNS log files and return different dictionary for data pruning  
-    
-    Argument: List of strings of filename 
+    Description:
+    This function parses the list of input DNS log files and return different dictionary for data pruning
 
-    Return:A tuple of following items: 
+    Argument: List of strings of filename
+
+    Return:A tuple of following items:
                                 Dictionary RL: Valid Domain<String>:Client<String>:IPList (Answer) <list<String>>
                                 Domain Dictionary: Domains<string>:appeared times<int>
                                 Client Dictionary: Client<string>: appeared times<int>>
@@ -86,12 +86,12 @@ def ReadInLogs(LogList):
                                 Total calls: the number of DNS requests
 
     if expception or error take place, return empty dictionary
- 
-    
+
+
     """
 
     ReadinLogDict = dict() #MixIdentifier[id.orig_h+id.orig_p+id.resp_h+id.resp_p+trans_id]<String>:List<Strings>[Client,Domain,IPs]
-    DomainDict = dict() #Domains<string>:appeared times<int> 
+    DomainDict = dict() #Domains<string>:appeared times<int>
     ClientDict = dict() #Client<string>: appeared times<list<string>>
     IPDict = dict()     #IP<string>: Domain<string>
     RL = dict()             #Record List Store a list of [DOmain,Client,IPs] for build other dictionary
@@ -105,12 +105,12 @@ def ReadInLogs(LogList):
         cnameRecordList = []
         try:
             with open(Log,"r") as LogData:
-         
+
                 Data = LogData.readlines()
                 print("Inputing {} lines ... ".format(len(Data)))
                 for line in Data:
 
-                
+
                     if(line[0] == "#"):
                         continue #ignore first line
 
@@ -125,19 +125,24 @@ def ReadInLogs(LogList):
                     IPList = Answer2IP(dline[21]) #Check validity of ip addresses in answers (DNS response)
                     aliasDomainList = [] if dline[21] == "-" else dline[21].split(",")
 
-                    #Code snippet for CName records
+                    #START: Code snippet for CName records
+                    """We had to modify data pruning file because the method did
+                    not include CNAME query types; therefore, in this code portion we
+                    fetch CNAME record types and add them to domain and alias
+                    domain lists. Also, we can see that the function ReadInLogs
+                    now returns the Cname record list as well."""
 
                     if qTypeName.startswith("CNAME") and len(aliasDomainList)>0:
                         aliasDomainList.append(Domain)
                         cnameRecordList.append(aliasDomainList)
-                        #print("Cname qtypes:",qTypeName)
-                        #print(cnameRecordDict)
+
+                    #END: Code snippet for Cname records
 
                     updateFlag = False #determine if can updates
-                    
+
                     if(Domain == "-" and len(IPList) < 1):
                         continue #ignore such log
-                    
+
                     if(IDKey in ReadinLogDict):
 
                         #update Domian
@@ -147,7 +152,7 @@ def ReadInLogs(LogList):
                             updateFlag = True
                             ValidLine += 2 #need two logs  --??
                             #print("C1-")
-                            
+
 
                         #update IPs from Answer
                         if(len(ReadinLogDict.get(IDKey)[2]) == 0 and len(IPList) > 0): #at least one valid IP
@@ -158,13 +163,13 @@ def ReadInLogs(LogList):
                             #print("C2-")
 
                     else:
-                        if((Domain == "-" or ValidDomain(Domain)) and (ValidIP(Client) or dline[21] == "-")): 
+                        if((Domain == "-" or ValidDomain(Domain)) and (ValidIP(Client) or dline[21] == "-")):
                             #Client should be valid; Domain either valid or empty
                             ReadinLogDict[IDKey] = [Client,Domain,IPList]
                             updateFlag = (Domain != "-" and len(IPList) > 0)
                             ValidLine += 1
                             #print("C3")
-                             
+
 
                     #if both domian and IPs exists, update to other dictoionaries
                     #if(IDKey in ReadinLogDict and not updateFlag):
@@ -185,20 +190,20 @@ def ReadInLogs(LogList):
 
                         else:
                             RL[Domain][Client] += IPList
-                        
-                            
+
+
 
                         #Domain
                         if(Domain not in DomainDict):
                             DomainDict[Domain] = 0
                         DomainDict[Domain] += 1
-                        
 
-                        #Client    
+
+                        #Client
                         if(Client not in ClientDict):
                             ClientDict[Client] = 0
                         ClientDict[Client] += 1
-                    
+
 
                         #IPs
                         for ip in IPList:
@@ -223,17 +228,17 @@ def ReadInLogs(LogList):
 
 
 def Prun(DomainDict,ClientDict,IPDict,TotalCall,kd=1,ka=1,kc=1,kip=1):
-   
+
     """
     Description:
     This function will further remove logs information based on the Hindom paper's requirement
-    
-    Arguments: parameters for pruning the DNS logs: kd,ka,kc 
+
+    Arguments: parameters for pruning the DNS logs: kd,ka,kc
     Domain Dictionary: Domains<string>:appeared times<int>
     Client Dictionary: Client<string>: appeared times<int>>
     IP Dictionary: IP<string>: Domains<list<string>>
     Total calls: the number of DNS requests
-    
+
     ka: remove large clients which is likely proxy by Ka% of clients #default 1 suggested 0.25
     kc: remove inactive clients query less than Kc domains    #default 1 suggested 3
     kd: remove popular domains that queried by Kd% of clients  #default 1 suggested 0.001
@@ -253,15 +258,15 @@ def Prun(DomainDict,ClientDict,IPDict,TotalCall,kd=1,ka=1,kc=1,kip=1):
         return None
 
     MaxDomain = len(DomainDict)*kd #popular domain
-    MaxClient = TotalCall*ka  #busy client 
+    MaxClient = TotalCall*ka  #busy client
 
     #print(MaxDomain," ",MaxClient)
 
     DomainNo = dict()
     #Only IPs and Domain
     IPNo = dict()
-    
-    #Domain 
+
+    #Domain
     index = 0 #may adjusted
     for domain in DomainDict:
 
@@ -269,7 +274,7 @@ def Prun(DomainDict,ClientDict,IPDict,TotalCall,kd=1,ka=1,kc=1,kip=1):
             DomainNo[domain] = index
             index += 1
     #Client
-    ClientSizeBefore = len(ClientDict) 
+    ClientSizeBefore = len(ClientDict)
     index = 0
     for client in ClientDict:
 
@@ -277,7 +282,7 @@ def Prun(DomainDict,ClientDict,IPDict,TotalCall,kd=1,ka=1,kc=1,kip=1):
         if(cNum < MaxClient and cNum >= kc): #neither busy nor inactive is taken into account
             IPNo[client] = index
             index += 1
-    
+
     ClientSizeAfter = index
 
     #IP
@@ -306,7 +311,7 @@ def GenerateWL(LogLists,kd=1,ka=1,kc=1,kip=1,ShowTime=True):
     """
     Description:
     This function act as a wrapper to be generate valid list (Whitelist) of Domains and IPs with Assigned index
-    
+
     Argument: List of input files, parameters from Hindom paper, Flag for print out running time
 
     ka: remove large clients which is likely proxy by Ka% of clients #default 1 suggested 0.25
@@ -321,11 +326,11 @@ def GenerateWL(LogLists,kd=1,ka=1,kc=1,kip=1,ShowTime=True):
     Dictionart of all valid Client and Answeres IPs: IP<String>:index<int>
 
     If an error occur, return None
- 
-    
+
+
     """
 
-    
+
     st = datetime.now()
     RL,DD,CD,IPD,TCalls,CNameRecords = ReadInLogs(LogLists)
     et = datetime.now()
@@ -351,21 +356,21 @@ def GenerateWL(LogLists,kd=1,ka=1,kc=1,kip=1,ShowTime=True):
     else:
         return None
 
-    
+
 def GenerateDomain2IP(RL,DD):
-    
+
     """
-    
+
     Description:
-    This function return a dictionary maps the relation on (Answer)IPs  
-    
+    This function return a dictionary maps the relation on (Answer)IPs
+
     Argument:
     Dictionary RL: Valid Domain<String>:Client<String>:IPList (Answer) <list<String>>
     Dictionary of all valid Domains: Domain<String>:index<int>
 
 
     Return: A dictionary maps Domain to IPs: Domian<Stirng>:IPs<list<String>>
-    
+
     """
 
     Domain2IP = dict()
@@ -383,18 +388,12 @@ def GenerateDomain2IP(RL,DD):
     for ip in IP2Domain:
 
         if(len(IP2Domain[ip]) > 1):
-            
+
             for domain in IP2Domain[ip]:
                 if(domain not in Domain2IP):
                     Domain2IP[domain] = []
                 Domain2IP[domain].append(ip)
 
     #Clients
-    
+
     return Domain2IP
-
-
-
-
-
-

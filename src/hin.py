@@ -75,7 +75,7 @@ def main():
     for innerList in CNameRecords:
       tuple_list.append(list(combinations(innerList, 2)))
 
-    
+
     for item in tuple_list:
         tupList.append(item[0])
     print("List of tuples:", tupList)
@@ -152,15 +152,19 @@ def main():
             domainResolveIp = None
 
     # ################### CNAME ########################################
-
+    #START: Cname matrix creation
+    """We create the Cname matrix using a pandas dataframe where the columns and
+    rows are the domain names and whenever the domain name in column has a cname
+    relationship with the domain name in the row then we make that position in the
+    matrix a value of 1.Then we print out the number of Cname connections (count
+    non zero values in matrix)"""
     cname_matrix = pd.DataFrame(0, index=list(domain2index.values()), columns=list(domain2index.keys()))
-
     print("CName shape:", cname_matrix.shape)
     for (i,j) in final_lst:
         cname_matrix.iat[i,j]=1
-
     print("Non zero count:", np.count_nonzero(cname_matrix))
 
+    #END: Cname matrix creation
     ################### Creating metapaths ############################
     if clientQueryDomain is not None:
         time1 = time()
@@ -197,11 +201,19 @@ def main():
     #   M = M + PathSim(domainSimilarityCSR)
     #   logging.info("Time pathsim domainSimilarityCSR " +
     #                "{:.2f}".format(time() - time1))
+
+    #START: Adding Cname metapath to matrix M which is affinity matrix
+    """Once we have the Cname matrix, we do not have to do create the metapath since
+    the Cname is already a metapath. Then, we combine the Cname metapath with the
+    other metapaths using the PathSim function. Afterwards, the matrix M will have
+    the Cname metapath and is included in the affinity matrix. """
     if cname_matrix is not None:
         time1 = time()
         M = M + PathSim(cname_matrix)
         logging.info("Time pathsim cnameCSR " +
                   "{:.2f}".format(time() - time1))
+    #END: Adding Cname metapath to matrix M which is affinity matrix
+
     if domainQueriedBySameClient is not None:
         time1 = time()
         M = M + PathSim(domainQueriedBySameClient)
