@@ -162,7 +162,12 @@ def main():
 
     print("Non zero count:", np.count_nonzero(cname_matrix))
     cname_sparsed = scipy.sparse.csr_matrix(cname_matrix.values)
-    print("Converted cname type:", type(cname_sparsed))
+
+    print("sparsed cname:",cname_sparsed)
+    f = open("cname_sparsed_matrix.txt", "a")
+    f.write(cname_sparsed)
+    f.close()
+
 
 
     ################### Creating metapaths ############################
@@ -246,9 +251,12 @@ def main():
     time1 = time()
     F = converge(M, labels, FLAGS.mu, FLAGS.tol)
     print("Y F domain")
+    f = open("convergence_log.txt", "a")
     for i in range(len(F)):
-        print(labels[i, :], F[i, :], index2domain[i])
-
+        log = labels[i, :], F[i, :], index2domain[i]
+        print(log)
+        f.write(log)
+    f.close()
 
 if __name__ == '__main__':
     main()
