@@ -258,9 +258,10 @@ def main():
     print("Y F domain")
     f = open("convergence_log.txt", "a")
     for i in range(len(F)):
-        log = labels[i, :] + "," + F[i, :] + "," + index2domain[i]
+        log = labels[i, :], F[i, :], index2domain[i]
         # print(log)
-        f.write(log)
+
+        f.write(''.join(map(str, log)))
     f.close()
 
 
