@@ -14,6 +14,7 @@ from affinity_matrix import affinity_matrix, converge
 import numpy as np
 import pandas as pd
 from itertools import combinations
+import scipy
 
 
 def print_nnz_info(M: csr_matrix, name: str):
@@ -163,6 +164,9 @@ def main():
     for (i,j) in final_lst:
         cname_matrix.iat[i,j]=1
     print("Non zero count:", np.count_nonzero(cname_matrix))
+    cname_sparsed = scipy.sparse.csr_matrix(cname_matrix.values)
+    print("Converted cname type:", type(cname_sparsed))
+
 
     #END: Cname matrix creation
     ################### Creating metapaths ############################
@@ -172,6 +176,7 @@ def main():
         domainQueriedBySameClient = domainQueriedByClient * clientQueryDomain
         print("Time to domainQueriedBySameClient " +
               "{:.2f}".format(time() - time1))
+        print("Type of matrix:", type(domainQueriedBySameClient))
     else:
         domainQueriedBySameClient = None
 
@@ -209,7 +214,7 @@ def main():
     the Cname metapath and is included in the affinity matrix. """
     if cname_matrix is not None:
         time1 = time()
-        M = M + PathSim(cname_matrix)
+        M = M + PathSim(cname_sparsed)
         logging.info("Time pathsim cnameCSR " +
                   "{:.2f}".format(time() - time1))
     #END: Adding Cname metapath to matrix M which is affinity matrix

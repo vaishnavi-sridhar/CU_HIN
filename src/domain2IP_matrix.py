@@ -39,7 +39,7 @@ def getDomainResolveIpCSR(domain2ip: dict,
       lil[domain_index,ip_index]=1
 
   csr = lil.tocsr()
-
+  print("Type of domainResIp:", type(csr))
   return csr
 
 
