@@ -160,6 +160,8 @@ def main():
         cname_matrix.iat[i,j]=1
 
     print("Non zero count:", np.count_nonzero(cname_matrix))
+    cname_sparsed = cname_matrix.astype(pd.SparseDtype("float", np.nan))
+    print("Converted cname type:", type(cname_sparsed))
 
     ################### Creating metapaths ############################
     if clientQueryDomain is not None:
