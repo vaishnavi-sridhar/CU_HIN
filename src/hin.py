@@ -168,6 +168,7 @@ def main():
         domainQueriedBySameClient = domainQueriedByClient * clientQueryDomain
         print("Time to domainQueriedBySameClient " +
               "{:.2f}".format(time() - time1))
+        print("Type of matrix:", type(domainQueriedBySameClient))
     else:
         domainQueriedBySameClient = None
 
