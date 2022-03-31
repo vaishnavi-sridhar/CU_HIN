@@ -72,10 +72,9 @@ def main():
     RL, domain2index, ip2index, CNameRecords = GenerateWL(FLAGS.dns_files)
 
     tuple_list = []
-    tupList =[]
+    tupList = []
     for innerList in CNameRecords:
-      tuple_list.append(list(combinations(innerList, 2)))
-
+        tuple_list.append(list(combinations(innerList, 2)))
 
     for item in tuple_list:
         tupList.append(item[0])
@@ -153,7 +152,7 @@ def main():
             domainResolveIp = None
 
     # ################### CNAME ########################################
-    #START: Cname matrix creation
+    # START: Cname matrix creation
     """We create the Cname matrix using a pandas dataframe where the columns and
     rows are the domain names and whenever the domain name in column has a cname
     relationship with the domain name in the row then we make that position in the
@@ -161,13 +160,13 @@ def main():
     non zero values in matrix)"""
     cname_matrix = pd.DataFrame(0, index=list(domain2index.values()), columns=list(domain2index.keys()))
     print("CName shape:", cname_matrix.shape)
-    for (i,j) in final_lst:
-        cname_matrix.iat[i,j]=1
+    for (i, j) in final_lst:
+        cname_matrix.iat[i, j] = 1
     print("Non zero count:", np.count_nonzero(cname_matrix))
     cname_sparsed = scipy.sparse.csr_matrix(cname_matrix.values)
-    print("sparsed cname:",cname_sparsed)
+    print("sparsed cname:", cname_sparsed)
 
-    #END: Cname matrix creation
+    # END: Cname matrix creation
     ################### Creating metapaths ############################
     if clientQueryDomain is not None:
         time1 = time()
@@ -206,7 +205,7 @@ def main():
     #   logging.info("Time pathsim domainSimilarityCSR " +
     #                "{:.2f}".format(time() - time1))
 
-    #START: Adding Cname metapath to matrix M which is affinity matrix
+    # START: Adding Cname metapath to matrix M which is affinity matrix
     """Once we have the Cname matrix, we do not have to do create the metapath since
     the Cname is already a metapath. Then, we combine the Cname metapath with the
     other metapaths using the PathSim function. Afterwards, the matrix M will have
@@ -215,8 +214,8 @@ def main():
         time1 = time()
         M = M + PathSim(cname_sparsed)
         logging.info("Time pathsim cnameCSR " +
-                  "{:.2f}".format(time() - time1))
-    #END: Adding Cname metapath to matrix M which is affinity matrix
+                     "{:.2f}".format(time() - time1))
+    # END: Adding Cname metapath to matrix M which is affinity matrix
 
     if domainQueriedBySameClient is not None:
         time1 = time()
@@ -259,10 +258,11 @@ def main():
     print("Y F domain")
     f = open("convergence_log.txt", "a")
     for i in range(len(F)):
-        log = labels[i, :], F[i, :], index2domain[i]
-        #print(log)
+        log = labels[i, :] + "," + F[i, :] + "," + index2domain[i]
+        # print(log)
         f.write(log)
     f.close()
+
 
 if __name__ == '__main__':
     main()
