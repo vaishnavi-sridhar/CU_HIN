@@ -165,13 +165,7 @@ def main():
         cname_matrix.iat[i,j]=1
     print("Non zero count:", np.count_nonzero(cname_matrix))
     cname_sparsed = scipy.sparse.csr_matrix(cname_matrix.values)
-
     print("sparsed cname:",cname_sparsed)
-    f = open("cname_sparsed_matrix.txt", "a")
-    f.write(cname_sparsed)
-    f.close()
-
-
 
     #END: Cname matrix creation
     ################### Creating metapaths ############################
@@ -266,7 +260,7 @@ def main():
     f = open("convergence_log.txt", "a")
     for i in range(len(F)):
         log = labels[i, :], F[i, :], index2domain[i]
-        print(log)
+        #print(log)
         f.write(log)
     f.close()
 
