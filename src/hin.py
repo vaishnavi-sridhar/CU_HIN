@@ -261,7 +261,7 @@ def main():
         log = labels[i, :], F[i, :], index2domain[i]
         # print(log)
 
-        f.write(''.join(map(str, log)))
+        f.write(''.join(map(str, log))+"\n")
     f.close()
 
 
