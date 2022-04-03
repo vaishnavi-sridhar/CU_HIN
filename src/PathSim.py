@@ -36,7 +36,10 @@ def LaplacianWeight(M,n,t=1):
     Inputs: Metapath M (csr_matrix), size of matrix n (int), connection scaling t (positive real, default 1).
     Output: Laplacian weight w (float).'''
     #Under development, will complete later. Set to 1/6 as a default.
-    w=1/6
+    # START
+    # spring 2022 - Changing this to 1/4 since only 4 meta-paths are completed
+    w=1/4
+    # END
     return w
 
 def TransductiveClassifier(Mp,Y,mu=1,tol=0.0001):

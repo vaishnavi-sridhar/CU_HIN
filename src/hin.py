@@ -2,7 +2,7 @@ import argparse
 from args import get_default_ArgumentParser, process_common_arguments
 from dataprun import GenerateWL, GenerateDomain2IP
 import logging
-# from DomainNameSimilarity import getDomainSimilarityCSR
+from DomainNameSimilarity import getDomainSimilarityCSR
 from ip_to_ip import ip_to_ip
 from time import time
 from label import Label, LabelFiles
@@ -13,7 +13,7 @@ from scipy.sparse import csr_matrix
 from affinity_matrix import affinity_matrix, converge
 import numpy as np
 import pandas as pd
-from itertools import combinations
+from itertools import combinations, combinations_with_replacement
 import scipy
 
 
@@ -53,6 +53,12 @@ def main():
     parser.add_argument('--exclude_clientQdomain', action='store_true',
                         help="If set, will not compute clientQueryDomain.")
 
+    # START: Added this arg to exclude domain similarity and cname - to compute performance of the hindom with and
+    # without these 2 metapaths
+    parser.add_argument('--exclude_domain_similarity_cname', action='store_true',
+                        help="If set, will not compute domain similarity(S) and cname meta-paths (C).")
+    # END
+
     parser.add_argument('--mu', type=float, default=0.5,
                         help="Mu parameter used to balance between original labels and new info.")
     parser.add_argument('--tol', type=float, default=0.001,
@@ -69,23 +75,13 @@ def main():
     logging.info("DNS files: " + str(FLAGS.dns_files))
     logging.info("Netflow files: " + str(FLAGS.netflow_files))
 
+    # START : Modified GenerateWL to return CNameRecords - List<List<String>> while reading data from dns file
     RL, domain2index, ip2index, CNameRecords = GenerateWL(FLAGS.dns_files)
+    # END
 
-    tuple_list = []
-    tupList = []
-    for innerList in CNameRecords:
-        tuple_list.append(list(combinations(innerList, 2)))
-
-    for item in tuple_list:
-        tupList.append(item[0])
-    print("List of tuples:", tupList)
-
-    final_lst = []
-    for tuple_item in tupList:
-        if tuple_item[0] in domain2index.keys() and tuple_item[1] in domain2index.keys():
-            final_lst.append((domain2index[tuple_item[0]], domain2index[tuple_item[1]]))
-
-    print(final_lst)
+    # START : Converting CName records from dns file into list of tuples(domain combinations)
+    final_domain_pairs = generate_cname_combo(CNameRecords, domain2index)
+    # END
 
     # print(RL) #Commenting out for faster runtime
     domain2ip = GenerateDomain2IP(RL, domain2index)  # maps domain to resolved ip list
@@ -108,50 +104,49 @@ def main():
     labels = label.get_domain_labels(domain2index)
     logging.info("Shape of labels: " + str(labels.shape))
 
-    ################### Domain similarity ##########################
-    # if not FLAGS.exclude_domain_similarity:
-    #  time1 = time()
-    #  domainSimilarityCSR = getDomainSimilarityCSR(domain2index,
-    #                                          domain2ip,
-    #                                          FLAGS.domain_similarity_threshold)
-    #  logging.info("Time for domain similarity " +
-    #               "{:.2f}".format(time() - time1))
-    #  print_nnz_info(domainSimilarityCSR, "domain similarity")
-    # else:
-    #  logging.info("Excluding domain similarity")
-    #  domainSimilarityCSR = None
+    ################### Domain similarity (S) ##########################
+    if not FLAGS.exclude_domain_similarity:
+     time1 = time()
+     domainSimilarityCSR = getDomainSimilarityCSR(domain2index,
+                                             FLAGS.domain_similarity_threshold)
+     logging.info("Time for domain similarity " +
+                  "{:.2f}".format(time() - time1))
+     print_nnz_info(domainSimilarityCSR, "domain similarity")
+    else:
+     logging.info("Excluding domain similarity")
+
 
     ################### ip to ip ###################################
-
-    ################# Client query domain ############################
+    if not FLAGS.exclude_ip2ip:
+        time1 = time()
+        ip2ip = ip_to_ip(ip2index, FLAGS.netflow_files)
+        print("Time for ip2ip " +
+              "{:.2f}".format(time() - time1))
+        print_nnz_info(ip2ip, "ip2ip")
+    else:
+        print("Excluding ip2ip")
+        ip2ip = None
+    ################# Client query domain (Q) ############################
     if not FLAGS.exclude_clientQdomain:
         time1 = time()
         clientQueryDomain = getClientQueriesDomainCSR(RL, domain2index, ip2index)
         print("Time for clientQueryDomain " +
               "{:.2f}".format(time() - time1))
         print_nnz_info(clientQueryDomain, "clientQueryDomain")
-        if not FLAGS.exclude_ip2ip:
-            time1 = time()
-            ip2ip = ip_to_ip(ip2index, FLAGS.netflow_files)
-            print("Time for ip2ip " +
-                  "{:.2f}".format(time() - time1))
-            print_nnz_info(ip2ip, "ip2ip")
-        else:
-            print("Excluding ip2ip")
-            ip2ip = None
 
-        ################### Domain resolve ip #############################
-        if not FLAGS.exclude_domain2ip:
-            time1 = time()
-            domainResolveIp = getDomainResolveIpCSR(domain2ip, domain2index, ip2index)
-            print("Time for domainResolveIp " +
-                  "{:.2f}".format(time() - time1))
-            print_nnz_info(domainResolveIp, "domainResolveIp")
-        else:
-            print("Excluding domainResolveIp")
-            domainResolveIp = None
 
-    # ################### CNAME ########################################
+    ################### Domain resolve ip (R) #############################
+    if not FLAGS.exclude_domain2ip:
+        time1 = time()
+        domainResolveIp = getDomainResolveIpCSR(domain2ip, domain2index, ip2index)
+        print("Time for domainResolveIp " +
+              "{:.2f}".format(time() - time1))
+        print_nnz_info(domainResolveIp, "domainResolveIp")
+    else:
+        print("Excluding domainResolveIp")
+        domainResolveIp = None
+
+    # ################### CNAME matrix (C) ########################################
     # START: Cname matrix creation
     """We create the Cname matrix using a pandas dataframe where the columns and
     rows are the domain names and whenever the domain name in column has a cname
@@ -160,7 +155,7 @@ def main():
     non zero values in matrix)"""
     cname_matrix = pd.DataFrame(0, index=list(domain2index.values()), columns=list(domain2index.keys()))
     print("CName shape:", cname_matrix.shape)
-    for (i, j) in final_lst:
+    for (i, j) in final_domain_pairs:
         cname_matrix.iat[i, j] = 1
     print("Non zero count:", np.count_nonzero(cname_matrix))
     cname_sparsed = scipy.sparse.csr_matrix(cname_matrix.values)
@@ -171,7 +166,7 @@ def main():
     if clientQueryDomain is not None:
         time1 = time()
         domainQueriedByClient = clientQueryDomain.transpose()
-        domainQueriedBySameClient = domainQueriedByClient * clientQueryDomain
+        domainQueriedBySameClient = domainQueriedByClient * clientQueryDomain # Q*Q^T
         print("Time to domainQueriedBySameClient " +
               "{:.2f}".format(time() - time1))
         print("Type of matrix:", type(domainQueriedBySameClient))
@@ -189,12 +184,13 @@ def main():
 
     domainsFromSameClientSegment = None  # Not done
 
-    if domainResolveIp is not None:
-        R = domainResolveIp
-        Rt = R.transpose()
-        fromSameAttacker = R * Rt * R * Rt
-    else:
-        fromSameAttacker = None
+    fromSameAttacker = None  # Not mentioned in paper
+    # if domainResolveIp is not None:
+    #     R = domainResolveIp
+    #     Rt = R.transpose()
+    #     fromSameAttacker = R * Rt * R * Rt
+    # else:
+    #     fromSameAttacker = None
 
     ################### Combine Matapaths ############################
     timeTotal = time()
@@ -205,7 +201,8 @@ def main():
     #   logging.info("Time pathsim domainSimilarityCSR " +
     #                "{:.2f}".format(time() - time1))
 
-    # START: Adding Cname metapath to matrix M which is affinity matrix
+
+    # START: Adding Cname metapath (C) to matrix M which is affinity matrix
     """Once we have the Cname matrix, we do not have to do create the metapath since
     the Cname is already a metapath. Then, we combine the Cname metapath with the
     other metapaths using the PathSim function. Afterwards, the matrix M will have
@@ -215,23 +212,28 @@ def main():
         M = M + PathSim(cname_sparsed)
         logging.info("Time pathsim cnameCSR " +
                      "{:.2f}".format(time() - time1))
-    # END: Adding Cname metapath to matrix M which is affinity matrix
+    # END: Adding Cname meta-path to matrix M which is affinity matrix
 
+    # Q*Q^T
     if domainQueriedBySameClient is not None:
         time1 = time()
         M = M + PathSim(domainQueriedBySameClient)
     print("Time pathsim domainQueriedBySameClient " +
           "{:.2f}".format(time() - time1))
+
+    # R*R^T
     if domainsShareIp is not None:
         time1 = time()
         M = M + PathSim(domainsShareIp)
     print("Time pathsim domainShareIp " +
           "{:.2f}".format(time() - time1))
+
     if domainsFromSameClientSegment is not None:
         time1 = time()
         M = M + PathSim(domainsFromSameClientSegment)
     print("Time pathsim domainsFromSameClientSegment " +
           "{:.2f}".format(time() - time1))
+
     if fromSameAttacker is not None:
         time1 = time()
         M = M + PathSim(fromSameAttacker)
@@ -259,10 +261,30 @@ def main():
     f = open("convergence_log.txt", "a")
     for i in range(len(F)):
         log = labels[i, :], F[i, :], index2domain[i]
-        # print(log)
-
-        f.write(''.join(map(str, log))+"\n")
+        f.write(''.join(map(str, log)) + "\n")
     f.close()
+
+# START :  Function
+# Input: CNameRecords- List of List of domain names belonging to a single cname record
+#        domain2index- Dictionary of key-domain name , value - index/integers starting from 0
+# Output: final_lst: List of tuples containing all possible 2 domain combinations with replacement
+# Example : combinations_with_replacement(‘ABCD’, 2) ==> [AA, AB, AC, AD, BB, BC, BD, CC, CD, DD]
+
+
+def generate_cname_combo(cname_records, domain2index):
+    list_domain_tuples = []
+    tuples_list = []
+    for innerList in cname_records:
+        list_domain_tuples.append(list(combinations_with_replacement(innerList, 2)))
+    for item in list_domain_tuples:
+        tuples_list.append(item[0])
+    print("List of tuples:", tuples_list)
+    final_domain_pairs = []
+    for tuple_item in tuples_list:
+        if tuple_item[0] in domain2index.keys() and tuple_item[1] in domain2index.keys():
+            final_domain_pairs.append((domain2index[tuple_item[0]], domain2index[tuple_item[1]]))
+    print(final_domain_pairs)
+    return final_domain_pairs
 
 
 if __name__ == '__main__':

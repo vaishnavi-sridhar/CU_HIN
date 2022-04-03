@@ -5,6 +5,7 @@ from statistics import mean
 import pickle
 import numpy as np
 from scipy.sparse import csr_matrix
+import ngram
 
 
 def stringSimilar(s1, s2):
@@ -160,3 +161,33 @@ def compareDomainsMass(domain_list):
     csr_array = csr_matrix(dense_array)
 
     return csr_array
+
+# START :
+# Function to find character level similarity between two domain name strings
+def get_trigram_sim_value(domain1, domain2):
+    return ngram.NGram.compare(domain1, domain2)
+
+
+# Creates the CSR matrix for Domain name similarity using the ngram python library to compare 2 domains
+# Parameters : domain2index dictionary
+# Returns: domain similarity csr matrix - metapath S of hindom
+def getDomainSimilarityCSR(domain2indexdict, threshold):
+    domain_size = len(domain2indexdict)
+    index2domain = {v: k for k, v in domain2indexdict.items()}
+    dense_list = [[0] * domain_size] * domain_size
+
+    for i in range(domain_size):
+        for j in range(i, domain_size):
+            similarity = get_trigram_sim_value(index2domain[i], index2domain[j])
+            dense_list[j][i] = 0 if similarity <= threshold else 1
+
+    dense_array = np.array(dense_list)
+
+    csr_array = csr_matrix(dense_array)
+
+    return csr_array
+    return None
+
+# END
+
+

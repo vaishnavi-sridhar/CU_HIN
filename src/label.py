@@ -182,7 +182,6 @@ class Label:
 
     """
     Internal class methods for json cache management
-
     This is a poor man's cache. It will get large, and there is no logic for cache replacement.
     """
     def __check_label_cache(self, domain):
