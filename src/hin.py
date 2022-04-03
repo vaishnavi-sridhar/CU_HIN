@@ -277,7 +277,8 @@ def generate_cname_combo(cname_records, domain2index):
     for innerList in cname_records:
         list_domain_tuples.append(list(combinations_with_replacement(innerList, 2)))
     for item in list_domain_tuples:
-        tuples_list.append(item)
+        for i in range(3):
+            tuples_list.append(item[i])
     print("List of tuples:", tuples_list)
     final_domain_pairs = []
     for tuple_item in tuples_list:
