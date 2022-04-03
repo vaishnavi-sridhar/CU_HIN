@@ -157,9 +157,7 @@ def main():
     print("CName shape:", cname_matrix.shape)
     for (i, j) in final_domain_pairs:
         cname_matrix.iat[i, j] = 1
-    print("Non zero count:", np.count_nonzero(cname_matrix))
     cname_sparsed = scipy.sparse.csr_matrix(cname_matrix.values)
-    print("sparsed cname:", cname_sparsed)
 
     # END: Cname matrix creation
     ################### Creating metapaths ############################
@@ -169,7 +167,6 @@ def main():
         domainQueriedBySameClient = domainQueriedByClient * clientQueryDomain # Q*Q^T
         print("Time to domainQueriedBySameClient " +
               "{:.2f}".format(time() - time1))
-        print("Type of matrix:", type(domainQueriedBySameClient))
     else:
         domainQueriedBySameClient = None
 
