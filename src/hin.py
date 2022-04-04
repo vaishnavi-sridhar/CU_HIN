@@ -13,7 +13,7 @@ from scipy.sparse import csr_matrix
 from affinity_matrix import affinity_matrix, converge
 import numpy as np
 import pandas as pd
-from itertools import combinations, combinations_with_replacement
+from itertools import combinations_with_replacement
 import scipy
 
 
@@ -105,7 +105,9 @@ def main():
     logging.info("Shape of labels: " + str(labels.shape))
 
     ################### Domain similarity (S) ##########################
-    if not FLAGS.exclude_domain_similarity:
+    domainSimilarityCSR = None
+    print("Newly added flag:", FLAGS.exclude_domain_similarity_cname)
+    if not FLAGS.exclude_domain_similarity and not FLAGS.exclude_domain_similarity_cname:
         time1 = time()
         domainSimilarityCSR = getDomainSimilarityCSR(domain2index,
                                                      FLAGS.domain_similarity_threshold)
@@ -151,7 +153,9 @@ def main():
     relationship with the domain name in the row then we make that position in the
     matrix a value of 1.Then we print out the number of Cname connections (count
     non zero values in matrix)"""
-    cname_sparsed = generate_cname_csr(domain2index, final_domain_pairs)
+    cname_sparsed = None
+    if not FLAGS.exclude_domain_similarity_cname:
+        cname_sparsed = generate_cname_csr(domain2index, final_domain_pairs)
 
     # END: Cname matrix creation
     ################### Creating metapaths ############################
@@ -186,11 +190,12 @@ def main():
     ################### Combine Matapaths ############################
     timeTotal = time()
     M = csr_matrix((domainMatrixSize, domainMatrixSize))
-    # if domainSimilarityCSR is not None:
-    #   time1 = time()
-    #   M = M + PathSim(domainSimilarityCSR)
-    #   logging.info("Time pathsim domainSimilarityCSR " +
-    #                "{:.2f}".format(time() - time1))
+
+    if domainSimilarityCSR is not None:
+      time1 = time()
+      M = M + PathSim(domainSimilarityCSR)
+      logging.info("Time pathsim domainSimilarityCSR " +
+                   "{:.2f}".format(time() - time1))
 
     # START: Adding Cname metapath (C) to matrix M which is affinity matrix
     """Once we have the Cname matrix, we do not have to do create the metapath since
