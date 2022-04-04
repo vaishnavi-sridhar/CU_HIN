@@ -57,6 +57,8 @@ def main():
     # without these 2 metapaths
     parser.add_argument('--exclude_domain_similarity_cname', action='store_true',
                         help="If set, will not compute domain similarity(S) and cname meta-paths (C).")
+    parser.add_argument('--exclude_cname', action='store_true',
+                        help="If set, will not compute cname meta-paths (C).")
     # END
 
     parser.add_argument('--mu', type=float, default=0.5,
@@ -154,7 +156,7 @@ def main():
     matrix a value of 1.Then we print out the number of Cname connections (count
     non zero values in matrix)"""
     cname_sparsed = None
-    if not FLAGS.exclude_domain_similarity_cname:
+    if not FLAGS.exclude_cname and not FLAGS.exclude_domain_similarity_cname:
         cname_sparsed = generate_cname_csr(domain2index, final_domain_pairs)
 
     # END: Cname matrix creation
@@ -282,7 +284,7 @@ def generate_cname_csr(domain2index, final_domain_pairs):
 
 ''' END '''
 
-''' 
+'''
 START - Function
 Input: CNameRecords- List of List of domain names belonging to a single cname record
         domain2index- Dictionary of key-domain name , value - index/integers starting from 0
