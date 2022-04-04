@@ -106,15 +106,14 @@ def main():
 
     ################### Domain similarity (S) ##########################
     if not FLAGS.exclude_domain_similarity:
-     time1 = time()
-     domainSimilarityCSR = getDomainSimilarityCSR(domain2index,
-                                             FLAGS.domain_similarity_threshold)
-     logging.info("Time for domain similarity " +
-                  "{:.2f}".format(time() - time1))
-     print_nnz_info(domainSimilarityCSR, "domain similarity")
+        time1 = time()
+        domainSimilarityCSR = getDomainSimilarityCSR(domain2index,
+                                                     FLAGS.domain_similarity_threshold)
+        logging.info("Time for domain similarity " +
+                     "{:.2f}".format(time() - time1))
+        print_nnz_info(domainSimilarityCSR, "domain similarity")
     else:
-     logging.info("Excluding domain similarity")
-
+        logging.info("Excluding domain similarity")
 
     ################### ip to ip ###################################
     if not FLAGS.exclude_ip2ip:
@@ -134,7 +133,6 @@ def main():
               "{:.2f}".format(time() - time1))
         print_nnz_info(clientQueryDomain, "clientQueryDomain")
 
-
     ################### Domain resolve ip (R) #############################
     if not FLAGS.exclude_domain2ip:
         time1 = time()
@@ -153,18 +151,14 @@ def main():
     relationship with the domain name in the row then we make that position in the
     matrix a value of 1.Then we print out the number of Cname connections (count
     non zero values in matrix)"""
-    cname_matrix = pd.DataFrame(0, index=list(domain2index.values()), columns=list(domain2index.keys()))
-    print("CName shape:", cname_matrix.shape)
-    for (i, j) in final_domain_pairs:
-        cname_matrix.iat[i, j] = 1
-    cname_sparsed = scipy.sparse.csr_matrix(cname_matrix.values)
+    cname_sparsed = generate_cname_csr(domain2index, final_domain_pairs)
 
     # END: Cname matrix creation
     ################### Creating metapaths ############################
     if clientQueryDomain is not None:
         time1 = time()
         domainQueriedByClient = clientQueryDomain.transpose()
-        domainQueriedBySameClient = domainQueriedByClient * clientQueryDomain # Q*Q^T
+        domainQueriedBySameClient = domainQueriedByClient * clientQueryDomain  # Q*Q^T
         print("Time to domainQueriedBySameClient " +
               "{:.2f}".format(time() - time1))
     else:
@@ -198,13 +192,12 @@ def main():
     #   logging.info("Time pathsim domainSimilarityCSR " +
     #                "{:.2f}".format(time() - time1))
 
-
     # START: Adding Cname metapath (C) to matrix M which is affinity matrix
     """Once we have the Cname matrix, we do not have to do create the metapath since
     the Cname is already a metapath. Then, we combine the Cname metapath with the
     other metapaths using the PathSim function. Afterwards, the matrix M will have
     the Cname metapath and is included in the affinity matrix. """
-    if cname_matrix is not None:
+    if cname_sparsed is not None:
         time1 = time()
         M = M + PathSim(cname_sparsed)
         logging.info("Time pathsim cnameCSR " +
@@ -255,17 +248,42 @@ def main():
     time1 = time()
     F = converge(M, labels, FLAGS.mu, FLAGS.tol)
     print("Y F domain")
+    ''' START - Writing classification output - converged F values, labels and corresponding domain name to a log file
+    '''
     f = open("convergence_log.txt", "a")
     for i in range(len(F)):
         log = labels[i, :], F[i, :], index2domain[i]
         f.write(''.join(map(str, log)) + "\n")
     f.close()
+    ''' END '''
 
-# START :  Function
-# Input: CNameRecords- List of List of domain names belonging to a single cname record
-#        domain2index- Dictionary of key-domain name , value - index/integers starting from 0
-# Output: final_lst: List of tuples containing all possible 2 domain combinations with replacement
-# Example : combinations_with_replacement(‘ABCD’, 2) ==> [AA, AB, AC, AD, BB, BC, BD, CC, CD, DD]
+
+'''
+START - Function to create csr matrix for cname meta path based on domain pair combinations
+Parameter1 : domain2index dictionary , key: domain name string, value: index (integer)
+Parameter2 : final_domain_pairs - list of tuples
+'''
+
+
+def generate_cname_csr(domain2index, final_domain_pairs):
+    cname_matrix = pd.DataFrame(0, index=list(domain2index.values()), columns=list(domain2index.keys()))
+    print("CName shape:", cname_matrix.shape)
+    for (i, j) in final_domain_pairs:
+        cname_matrix.iat[i, j] = 1
+        cname_matrix.iat[j, i] = 1
+    cname_sparsed = scipy.sparse.csr_matrix(cname_matrix.values)
+    return cname_sparsed
+
+
+''' END '''
+
+''' 
+START - Function
+Input: CNameRecords- List of List of domain names belonging to a single cname record
+        domain2index- Dictionary of key-domain name , value - index/integers starting from 0
+Output: final_lst: List of tuples containing all possible 2 domain combinations with replacement
+Example : combinations_with_replacement(‘ABCD’, 2) ==> [AA, AB, AC, AD, BB, BC, BD, CC, CD, DD]
+'''
 
 
 def generate_cname_combo(cname_records, domain2index):

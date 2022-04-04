@@ -186,7 +186,7 @@ def getDomainSimilarityCSR(domain2indexdict, threshold):
     csr_array = csr_matrix(dense_array)
 
     return csr_array
-    return None
+
 
 # END
 
