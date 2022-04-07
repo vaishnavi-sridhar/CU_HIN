@@ -109,7 +109,7 @@ def main():
     ################### Domain similarity (S) ##########################
     domainSimilarityCSR = None
     print("Newly added flag:", FLAGS.exclude_domain_similarity_cname)
-    if not FLAGS.exclude_domain_similarity and not FLAGS.exclude_domain_similarity_cname:
+    if not FLAGS.exclude_domain_similarity or not FLAGS.exclude_domain_similarity_cname:
         time1 = time()
         domainSimilarityCSR = getDomainSimilarityCSR(domain2index,
                                                      FLAGS.domain_similarity_threshold)
@@ -117,7 +117,7 @@ def main():
                      "{:.2f}".format(time() - time1))
         print_nnz_info(domainSimilarityCSR, "domain similarity")
     else:
-        logging.info("Excluding domain similarity")
+        print("Excluding domain similarity")
 
     ################### ip to ip ###################################
     if not FLAGS.exclude_ip2ip:
@@ -156,8 +156,10 @@ def main():
     matrix a value of 1.Then we print out the number of Cname connections (count
     non zero values in matrix)"""
     cname_sparsed = None
-    if not FLAGS.exclude_cname and not FLAGS.exclude_domain_similarity_cname:
+    if not FLAGS.exclude_cname or not FLAGS.exclude_domain_similarity_cname:
         cname_sparsed = generate_cname_csr(domain2index, final_domain_pairs)
+    else:
+        print("Excluding Cname")
 
     # END: Cname matrix creation
     ################### Creating metapaths ############################
